@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Persiapan Pernikahan</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#1B2E28;
+    --ink-soft:#3B4E47;
+    --paper:#FAF7F2;
+    --card:#FFFFFF;
+    --line:#E4DED2;
+    --gold:#B4923F;
+    --gold-soft:#EFE3C5;
+    --rose:#C48273;
+    --sage:#8FA093;
+    --sage-soft:#E5EAE3;
+    --danger:#B4544A;
+    --radius:14px;
+    --shadow: 0 1px 2px rgba(27,46,40,0.06), 0 8px 24px -12px rgba(27,46,40,0.18);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Inter',sans-serif;
+    -webkit-font-smoothing:antialiased;
+    min-height:100vh;
+  }
+  ::selection{background:var(--gold-soft);}
+
+  header{
+    padding:36px 20px 22px;
+    text-align:center;
+    position:relative;
+  }
+  .monogram{
+    width:52px;height:52px;
+    margin:0 auto 14px;
+    border-radius:50%;
+    border:1.5px solid var(--gold);
+    display:flex;align-items:center;justify-content:center;
+    font-family:'Fraunces',serif;
+    font-style:italic;
+    font-size:18px;
+    color:var(--gold);
+    letter-spacing:0.5px;
+  }
+  h1{
+    font-family:'Fraunces',serif;
+    font-weight:500;
+    font-size:clamp(28px,5vw,40px);
+    margin:0 0 6px;
+    letter-spacing:0.2px;
+  }
+  .eyebrow{
+    font-size:11px;
+    letter-spacing:3px;
+    text-transform:uppercase;
+    color:var(--gold);
+    font-weight:600;
+    margin-bottom:10px;
+  }
+  .scallop{
+    width:120px;height:10px;margin:16px auto 0;
+    background-image: radial-gradient(circle at 5px 0, transparent 5px, var(--gold) 5.5px, transparent 6px);
+    background-size: 10px 10px;
+    background-repeat: repeat-x;
+    opacity:0.6;
+  }
+  .datebar{
+    margin-top:18px;
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+    justify-content:center;
+    align-items:center;
+    font-size:13px;
+    color:var(--ink-soft);
+  }
+  .datebar input[type="date"]{
+    font-family:'Inter',sans-serif;
+    border:1px solid var(--line);
+    background:var(--card);
+    padding:7px 10px;
+    border-radius:9px;
+    font-size:13px;
+    color:var(--ink);
+  }
+  .countdown{
+    font-family:'Fraunces',serif;
+    font-size:15px;
+    color:var(--ink);
+    background:var(--gold-soft);
+    padding:6px 14px;
+    border-radius:20px;
+  }
+  .countdown b{color:var(--gold);}
+
+  nav.tabs{
+    display:flex;
+    justify-content:center;
+    gap:4px;
+    padding:0 16px 24px;
+    flex-wrap:wrap;
+  }
+  nav.tabs button{
+    font-family:'Inter',sans-serif;
+    font-size:13px;
+    font-weight:600;
+    letter-spacing:0.3px;
+    background:transparent;
+    border:none;
+    color:var(--ink-soft);
+    padding:9px 18px;
+    border-radius:20px;
+    cursor:pointer;
+    transition:all .15s ease;
+  }
+  nav.tabs button:hover{color:var(--ink);}
+  nav.tabs button.active{
+    background:var(--ink);
+    color:var(--paper);
+  }
+
+  main{
+    max-width:1040px;
+    margin:0 auto;
+    padding:0 20px 80px;
+  }
+  section.view{display:none;}
+  section.view.active{display:block;animation:fade .25s ease;}
+  @keyframes fade{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:translateY(0);}}
+
+  .section-title{
+    font-family:'Fraunces',serif;
+    font-size:22px;
+    font-weight:500;
+    margin:0 0 4px;
+  }
+  .section-sub{
+    font-size:13px;
+    color:var(--ink-soft);
+    margin:0 0 20px;
+  }
+
+  .grid-cards{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+    gap:14px;
+    margin-bottom:28px;
+  }
+  .card{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:18px 20px;
+    box-shadow:var(--shadow);
+  }
+  .card .label{
+    font-size:11px;
+    text-transform:uppercase;
+    letter-spacing:1.5px;
+    color:var(--ink-soft);
+    margin-bottom:8px;
+  }
+  .card .value{
+    font-family:'Fraunces',serif;
+    font-size:26px;
+    color:var(--ink);
+  }
+  .card .value.gold{color:var(--gold);}
+  .card .value.rose{color:var(--rose);}
+  .card .sub{font-size:12px;color:var(--ink-soft);margin-top:4px;}
+
+  .budget-input-row{
+    display:flex;gap:10px;align-items:center;margin-bottom:22px;flex-wrap:wrap;
+  }
+  .budget-input-row label{font-size:13px;color:var(--ink-soft);}
+  .budget-input-row input{
+    font-family:'Inter',sans-serif;
+    border:1px solid var(--line);
+    background:var(--card);
+    padding:8px 12px;
+    border-radius:9px;
+    font-size:14px;
+    width:180px;
+  }
+
+  .progress-track{
+    width:100%;height:8px;background:var(--sage-soft);border-radius:6px;overflow:hidden;margin-top:6px;
+  }
+  .progress-fill{height:100%;background:var(--gold);border-radius:6px;transition:width .3s ease;}
+  .progress-fill.over{background:var(--danger);}
+
+  .bar-list{display:flex;flex-direction:column;gap:12px;}
+  .bar-row{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px;}
+  .bar-row .top{display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px;}
+  .bar-row .top .cat{font-weight:600;}
+  .bar-row .top .amt{color:var(--ink-soft);}
+
+  .cat-block{margin-bottom:30px;}
+  .cat-head{
+    display:flex;justify-content:space-between;align-items:center;
+    margin-bottom:12px;
+    padding-bottom:8px;
+    border-bottom:1px solid var(--line);
+  }
+  .cat-head h3{
+    font-family:'Fraunces',serif;
+    font-weight:500;font-size:17px;margin:0;
+    display:flex;align-items:center;gap:8px;
+  }
+  .cat-head .count{
+    font-size:11px;color:var(--ink-soft);font-family:'Inter',sans-serif;font-weight:500;
+    background:var(--sage-soft);padding:2px 9px;border-radius:10px;
+  }
+  .add-btn{
+    background:var(--ink);color:var(--paper);border:none;
+    font-size:12px;font-weight:600;padding:7px 14px;border-radius:18px;cursor:pointer;
+  }
+  .add-btn:hover{background:var(--ink-soft);}
+  .add-btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--line);}
+
+  .vendor-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(260px,1fr));
+    gap:14px;
+  }
+  .vcard{
+    background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+    padding:16px;box-shadow:var(--shadow);position:relative;
+    display:flex;flex-direction:column;gap:8px;
+  }
+  .vcard.chosen{border:1.5px solid var(--gold);background:linear-gradient(180deg,var(--gold-soft) 0%, var(--card) 60px);}
+  .vcard-top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;}
+  .vcard input.vname{
+    font-family:'Fraunces',serif;font-size:16px;border:none;background:transparent;
+    width:100%;padding:0;color:var(--ink);font-weight:500;
+  }
+  .vcard input.vname:focus{outline:none;border-bottom:1px solid var(--gold);}
+  .del-x{
+    background:none;border:none;color:var(--ink-soft);cursor:pointer;font-size:15px;
+    line-height:1;padding:2px 4px;border-radius:6px;
+  }
+  .del-x:hover{color:var(--danger);background:#F3E4E2;}
+  .vfield{display:flex;flex-direction:column;gap:3px;}
+  .vfield label{font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--ink-soft);}
+  .vfield input, .vfield textarea, .vfield select{
+    font-family:'Inter',sans-serif;font-size:13px;border:1px solid var(--line);
+    border-radius:8px;padding:6px 9px;background:var(--paper);color:var(--ink);
+  }
+  .vfield textarea{resize:vertical;min-height:38px;font-family:'Inter',sans-serif;}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+  .pkg-count{
+    background:var(--sage-soft);color:var(--ink-soft);font-size:10px;font-weight:700;
+    padding:1px 7px;border-radius:8px;letter-spacing:0;text-transform:none;margin-left:4px;
+  }
+  .pkg-list{display:flex;flex-direction:column;gap:6px;}
+  .pkg-row{
+    display:grid;
+    grid-template-columns:22px minmax(50px,1fr) auto 20px;
+    grid-template-areas: "radio name price del" "empty includes includes includes";
+    align-items:center;
+    gap:4px 6px;
+    background:var(--paper);
+    border:1px solid var(--line);
+    border-radius:9px;
+    padding:7px 8px;
+  }
+  .pkg-row.selected{border-color:var(--gold);background:var(--gold-soft);}
+  .pkg-radio{
+    grid-area:radio;
+    width:18px;height:18px;border-radius:50%;border:1.5px solid var(--gold);
+    background:var(--card);color:var(--gold);font-size:9px;
+    display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0;
+    flex-shrink:0;
+  }
+  .pkg-row.selected .pkg-radio{background:var(--gold);color:#fff;}
+  .pkg-name{grid-area:name;font-weight:600;min-width:0;width:100%;}
+  .pkg-price{grid-area:price;text-align:right;min-width:54px;max-width:150px;flex-shrink:0;}
+  .pkg-del{
+    grid-area:del;background:none;border:none;color:var(--ink-soft);cursor:pointer;
+    font-size:12px;padding:0;line-height:1;flex-shrink:0;
+  }
+  .pkg-del:hover{color:var(--danger);}
+  .pkg-includes{
+    grid-area:includes;font-size:11.5px;color:var(--ink-soft);background:transparent;
+    border:none;padding:0;margin-top:1px;min-width:0;width:100%;
+    white-space:normal;overflow-wrap:break-word;resize:none;overflow:hidden;
+    font-family:'Inter',sans-serif;line-height:1.4;display:block;
+  }
+  .pkg-includes:focus{outline:none;color:var(--ink);}
+  .pkg-name, .pkg-price{
+    font-family:'Inter',sans-serif;font-size:12.5px;border:1px solid transparent;
+    border-radius:6px;padding:3px 6px;background:transparent;color:var(--ink);
+    box-sizing:border-box;
+  }
+  .pkg-name:focus, .pkg-price:focus{outline:none;border-color:var(--line);background:var(--card);}
+  .add-btn.small{font-size:11px;padding:5px 11px;margin-top:2px;}
+  .stars{display:flex;gap:2px;font-size:16px;cursor:pointer;color:var(--line);}
+  .stars span.on{color:var(--gold);}
+  .vcard-foot{display:flex;justify-content:space-between;align-items:center;margin-top:2px;}
+  .status-pill{
+    font-size:11px;font-weight:600;padding:4px 10px;border-radius:12px;border:none;
+    cursor:pointer;font-family:'Inter',sans-serif;
+  }
+  .status-pertimbangan{background:var(--sage-soft);color:var(--ink-soft);}
+  .status-dihubungi{background:#E4E9F5;color:#4A5C8C;}
+  .status-deal{background:var(--gold-soft);color:#8C6E1F;}
+  .status-ditolak{background:#F3E4E2;color:var(--danger);}
+  .choose-btn{
+    font-size:11px;font-weight:700;background:none;border:1px solid var(--gold);color:var(--gold);
+    padding:4px 11px;border-radius:12px;cursor:pointer;letter-spacing:0.3px;
+  }
+  .choose-btn.is-chosen{background:var(--gold);color:#fff;}
+  .empty-cat{
+    font-size:13px;color:var(--ink-soft);padding:18px;text-align:center;border:1px dashed var(--line);border-radius:12px;
+  }
+
+  .checklist-add{
+    display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px;
+    background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:14px;
+  }
+  .checklist-add input[type="text"]{flex:1;min-width:160px;}
+  .checklist-add input, .checklist-add select{
+    font-family:'Inter',sans-serif;font-size:13px;border:1px solid var(--line);
+    border-radius:8px;padding:8px 10px;background:var(--paper);color:var(--ink);
+  }
+  .task-group{margin-bottom:22px;}
+  .task-group-title{
+    font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:var(--ink-soft);
+    margin-bottom:8px;font-weight:600;
+  }
+  .task-row{
+    display:flex;align-items:center;gap:12px;
+    background:var(--card);border:1px solid var(--line);border-radius:12px;
+    padding:11px 14px;margin-bottom:8px;
+  }
+  .task-row.done{opacity:0.5;}
+  .task-row.done .task-title{text-decoration:line-through;}
+  .task-check{
+    width:19px;height:19px;border-radius:50%;border:1.5px solid var(--gold);
+    cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;
+    background:var(--card);
+  }
+  .task-row.done .task-check{background:var(--gold);color:#fff;font-size:12px;}
+  .task-body{flex:1;min-width:0;}
+  .task-title{font-size:14px;font-weight:500;}
+  .task-meta{font-size:11px;color:var(--ink-soft);margin-top:2px;}
+  .task-meta .tag{
+    background:var(--sage-soft);padding:1px 8px;border-radius:9px;margin-right:6px;
+  }
+  .prio-tinggi{color:var(--danger);font-weight:600;}
+  .task-del{background:none;border:none;color:var(--ink-soft);cursor:pointer;font-size:15px;padding:2px 6px;}
+  .task-del:hover{color:var(--danger);}
+
+  footer{
+    text-align:center;font-size:11px;color:var(--ink-soft);padding:20px;
+  }
+
+  @media(max-width:520px){
+    .row2{grid-template-columns:1fr;}
+    .checklist-add{flex-direction:column;}
+    .checklist-add input, .checklist-add select{width:100%;}
+  }
+
+  :focus-visible{outline:2px solid var(--gold);outline-offset:2px;}
+  
+  .sync-status {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: var(--ink);
+    color: var(--paper);
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    opacity: 0;
+    transition: opacity 0.3s;
+    pointer-events: none;
+    z-index: 100;
+  }
+  .sync-status.show { opacity: 0.8; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="monogram">&</div>
+  <div class="eyebrow">Buku Perencanaan</div>
+  <h1>Persiapan Pernikahan</h1>
+  <div class="scallop"></div>
+  <div class="datebar">
+    <label style="font-size:13px;">Tanggal pernikahan:</label>
+    <input type="date" id="weddingDate">
+    <span class="countdown" id="countdownBadge"></span>
+  </div>
+</header>
+
+<nav class="tabs">
+  <button data-view="dashboard" class="active">Ringkasan</button>
+  <button data-view="vendor">Vendor</button>
+  <button data-view="checklist">Checklist</button>
+</nav>
+
+<main>
+  <section class="view active" id="view-dashboard">
+    <p class="section-title">Ringkasan Anggaran</p>
+    <p class="section-sub">Total anggaran dan estimasi biaya dari vendor yang sudah dipilih.</p>
+    <div class="budget-input-row">
+      <label>Total anggaran (Rp)</label>
+      <input type="text" inputmode="numeric" id="totalBudget" placeholder="Rp 0">
+    </div>
+    <div class="grid-cards">
+      <div class="card">
+        <div class="label">Total Anggaran</div>
+        <div class="value" id="dbBudget">Rp 0</div>
+      </div>
+      <div class="card">
+        <div class="label">Estimasi Terpakai</div>
+        <div class="value gold" id="dbSpent">Rp 0</div>
+        <div class="sub" id="dbSpentSub"></div>
+      </div>
+      <div class="card">
+        <div class="label">Sisa Anggaran</div>
+        <div class="value" id="dbRemaining">Rp 0</div>
+      </div>
+      <div class="card">
+        <div class="label">Checklist Selesai</div>
+        <div class="value" id="dbChecklist">0 / 0</div>
+        <div class="progress-track"><div class="progress-fill" id="dbChecklistBar" style="width:0%"></div></div>
+      </div>
+    </div>
+    <p class="section-title" style="font-size:17px;">Biaya per Kategori Vendor</p>
+    <p class="section-sub">Dihitung dari vendor berstatus "Deal" atau yang ditandai dipilih di setiap kategori.</p>
+    <div class="bar-list" id="categoryBars"></div>
+  </section>
+
+  <section class="view" id="view-vendor">
+    <p class="section-title">Perbandingan Vendor</p>
+    <p class="section-sub">Tambahkan beberapa pilihan vendor per kategori, lalu bandingkan harga, rating, dan status. Tandai "Pilih" pada vendor yang sudah deal.</p>
+    <div id="vendorCategories"></div>
+    <button class="add-btn ghost" id="addCategoryBtn" style="margin-top:6px;">+ Tambah kategori baru</button>
+  </section>
+
+  <section class="view" id="view-checklist">
+    <p class="section-title">Checklist Persiapan</p>
+    <p class="section-sub">Daftar tugas persiapan pernikahan, diurutkan berdasarkan tenggat waktu.</p>
+    <div class="checklist-add">
+      <input type="text" id="taskTitle" placeholder="Tugas baru, mis. Survei venue">
+      <input type="date" id="taskDue">
+      <select id="taskPriority">
+        <option value="normal">Prioritas normal</option>
+        <option value="tinggi">Prioritas tinggi</option>
+      </select>
+      <button class="add-btn" id="addTaskBtn">+ Tambah</button>
+    </div>
+    <div class="card" style="margin-bottom:20px;">
+      <div class="label">Progres Keseluruhan</div>
+      <div class="value" id="clProgressText">0%</div>
+      <div class="progress-track"><div class="progress-fill" id="clProgressBar" style="width:0%"></div></div>
+    </div>
+    <div id="taskGroups"></div>
+  </section>
+</main>
+
+<div id="syncIndicator" class="sync-status">Menyimpan...</div>
+<footer>Data tersimpan otomatis di Cloud Firebase.</footer>
+
+<!-- Chosen Palette: Warm Neutrals, Gold & Sage -->
+<!-- Application Structure Plan: 
+    - Header dengan Monogram dan Countdown Pernikahan.
+    - Navigasi Tab: Dashboard (Ringkasan), Vendor (Manajemen Biaya), Checklist (Tugas).
+    - Integrasi Firebase Realtime Database untuk sinkronisasi data antar perangkat.
+-->
+<!-- Visualization & Content Choices:
+    - Ringkasan Biaya: Card stats untuk visibilitas cepat.
+    - Progres: HTML Bar dinamis untuk anggaran per kategori dan checklist.
+    - Real-time Sync: Menggunakan event 'onValue' Firebase untuk update UI tanpa refresh.
+    CONFIRMATION: NO SVG used. NO Mermaid JS used.
+-->
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAC_PleC7hGi54HfqxLLvAR-22bFLWN_-Y",
+  authDomain: "wedding-planner-6539c.firebaseapp.com",
+  databaseURL: "https://wedding-planner-6539c-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "wedding-planner-6539c",
+  storageBucket: "wedding-planner-6539c.firebasestorage.app",
+  messagingSenderId: "961179803765",
+  appId: "1:961179803765:web:e3c5e03015e9fb8fb0583c",
+  measurementId: "G-PN77QD6174"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+const dataRef = ref(db, 'wedding_planner_data');
+
+const DEFAULT_CATEGORIES = ["Venue", "Katering", "Dekorasi", "Fotografi & Video", "MUA & Busana", "MC & Hiburan", "Undangan & Souvenir"];
+const STATUS_LABELS = {pertimbangan:"Pertimbangan", dihubungi:"Dihubungi", deal:"Deal", ditolak:"Ditolak"};
+
+let state = {
+  weddingDate: "",
+  totalBudget: 0,
+  vendors: {},
+  checklist: []
+};
+
+let isInitialLoad = true;
+let saveTimer = null;
+
+function showSync(){
+  const el = document.getElementById('syncIndicator');
+  el.classList.add('show');
+  setTimeout(()=>el.classList.remove('show'), 1500);
+}
+
+function scheduleSave(){
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(saveToFirebase, 800);
+}
+
+async function saveToFirebase(){
+  showSync();
+  try {
+    await set(dataRef, state);
+  } catch(e) { console.error("Gagal sinkron ke Firebase", e); }
+}
+
+onValue(dataRef, (snapshot) => {
+  const data = snapshot.val();
+  if (data) {
+    state = data;
+    if(!state.vendors) state.vendors = {};
+    if(!state.checklist) state.checklist = [];
+    
+    // Migrasi data lama jika diperlukan
+    Object.keys(state.vendors).forEach(cat=>{
+      state.vendors[cat].forEach(v=>{
+        if(!v.packages) v.packages = [{id:uid(), name:'Paket 1', price:0, includes:'', chosen:true}];
+      });
+    });
+
+    updateUIFromState();
+  } else if (isInitialLoad) {
+    // Jalankan default jika database kosong
+    DEFAULT_CATEGORIES.forEach(c => state.vendors[c] = []);
+    updateUIFromState();
+  }
+  isInitialLoad = false;
+});
+
+function updateUIFromState(){
+  document.getElementById('weddingDate').value = state.weddingDate || '';
+  document.getElementById('totalBudget').value = state.totalBudget ? formatRupiahInput(state.totalBudget) : '';
+  renderCountdown();
+  renderDashboard();
+  renderVendors();
+  renderChecklist();
+}
+
+function uid(){ return Math.random().toString(36).slice(2,10); }
+
+function formatRp(n){
+  n = Number(n)||0;
+  return "Rp " + n.toLocaleString('id-ID');
+}
+
+function formatRupiahInput(n){
+  n = Number(n)||0;
+  return "Rp " + n.toLocaleString('id-ID');
+}
+
+window.switchView = (viewName) => {
+    document.querySelectorAll('nav.tabs button').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('section.view').forEach(v=>v.classList.remove('active'));
+    document.querySelector(`nav.tabs button[data-view="${viewName}"]`).classList.add('active');
+    document.getElementById('view-'+viewName).classList.add('active');
+    if(viewName === 'dashboard') renderDashboard();
+};
+
+document.querySelectorAll('nav.tabs button').forEach(btn=>{
+  btn.addEventListener('click', ()=> switchView(btn.dataset.view));
+});
+
+const weddingDateInput = document.getElementById('weddingDate');
+weddingDateInput.addEventListener('change', ()=>{
+  state.weddingDate = weddingDateInput.value;
+  renderCountdown();
+  scheduleSave();
+});
+
+function renderCountdown(){
+  const badge = document.getElementById('countdownBadge');
+  if(!state.weddingDate){ badge.textContent = "Atur tanggal pernikahan"; return; }
+  const today = new Date(); today.setHours(0,0,0,0);
+  const target = new Date(state.weddingDate); target.setHours(0,0,0,0);
+  const diffDays = Math.round((target - today) / 86400000);
+  if(diffDays > 0){
+    badge.innerHTML = `<b>${diffDays}</b> hari lagi`;
+  } else if(diffDays === 0){
+    badge.innerHTML = `Hari ini adalah harinya! ✨`;
+  } else {
+    badge.innerHTML = `Sudah berlalu ${Math.abs(diffDays)} hari`;
+  }
+}
+
+const totalBudgetInput = document.getElementById('totalBudget');
+totalBudgetInput.addEventListener('input', ()=>{
+  const digits = totalBudgetInput.value.replace(/\D/g,'');
+  state.totalBudget = Number(digits)||0;
+  totalBudgetInput.value = state.totalBudget ? formatRupiahInput(state.totalBudget) : '';
+  renderDashboard();
+  scheduleSave();
+});
+
+function vendorPrice(v){
+  if(!v.packages || v.packages.length===0) return 0;
+  const p = v.packages.find(x=>x.chosen) || v.packages[0];
+  return Number(p.price)||0;
+}
+
+function categorySpent(cat){
+  const list = state.vendors[cat] || [];
+  const chosen = list.find(v=>v.chosen) || list.find(v=>v.status==='deal');
+  return chosen ? vendorPrice(chosen) : 0;
+}
+
+function renderDashboard(){
+  document.getElementById('dbBudget').textContent = formatRp(state.totalBudget);
+  let totalSpent = 0;
+  Object.keys(state.vendors).forEach(cat=>{ totalSpent += categorySpent(cat); });
+  document.getElementById('dbSpent').textContent = formatRp(totalSpent);
+  const remaining = (state.totalBudget||0) - totalSpent;
+  const remEl = document.getElementById('dbRemaining');
+  remEl.textContent = formatRp(remaining);
+  remEl.style.color = remaining < 0 ? 'var(--danger)' : 'var(--ink)';
+  document.getElementById('dbSpentSub').textContent = state.totalBudget ? Math.round((totalSpent/state.totalBudget)*100)+"% dari anggaran" : "";
+
+  const done = state.checklist.filter(t=>t.done).length;
+  const total = state.checklist.length;
+  document.getElementById('dbChecklist').textContent = `${done} / ${total}`;
+  document.getElementById('dbChecklistBar').style.width = total ? (done/total*100)+'%' : '0%';
+
+  const barsEl = document.getElementById('categoryBars');
+  barsEl.innerHTML = '';
+  Object.keys(state.vendors).forEach(cat=>{
+    const spent = categorySpent(cat);
+    if(spent === 0 && (state.vendors[cat]||[]).length === 0) return;
+    const pct = state.totalBudget ? Math.min(100, (spent/state.totalBudget)*100) : 0;
+    const row = document.createElement('div');
+    row.className = 'bar-row';
+    row.innerHTML = `
+      <div class="top"><span class="cat">${cat}</span><span class="amt">${formatRp(spent)}</span></div>
+      <div class="progress-track"><div class="progress-fill" style="width:${pct}%"></div></div>
+    `;
+    barsEl.appendChild(row);
+  });
+  if(!barsEl.innerHTML){
+    barsEl.innerHTML = '<p class="section-sub">Belum ada vendor yang dipilih atau ditandai deal.</p>';
+  }
+}
+
+function renderVendors(){
+  const wrap = document.getElementById('vendorCategories');
+  wrap.innerHTML = '';
+  Object.keys(state.vendors).forEach(cat=>{
+    const list = state.vendors[cat];
+    const block = document.createElement('div');
+    block.className = 'cat-block';
+    block.innerHTML = `
+      <div class="cat-head">
+        <h3>${cat} <span class="count">${list.length}</span></h3>
+        <button class="add-btn" data-cat="${cat}">+ Vendor</button>
+      </div>
+      <div class="vendor-grid"></div>
+    `;
+    wrap.appendChild(block);
+    const grid = block.querySelector('.vendor-grid');
+    if(list.length === 0){
+      grid.innerHTML = '<div class="empty-cat">Belum ada vendor. Klik "+ Vendor" untuk menambahkan.</div>';
+    } else {
+      list.forEach(v => grid.appendChild(renderVendorCard(cat, v)));
+    }
+  });
+}
+
+function renderVendorCard(cat, v){
+  const el = document.createElement('div');
+  el.className = 'vcard' + (v.chosen ? ' chosen' : '');
+  el.innerHTML = `
+    <div class="vcard-top">
+      <input class="vname" value="${escapeAttr(v.name)}" placeholder="Nama vendor" data-field="name">
+      <button class="del-x">✕</button>
+    </div>
+    <div class="vfield"><label>Kontak</label><input type="text" value="${escapeAttr(v.contact||'')}" placeholder="No. HP / IG" data-field="contact"></div>
+    <div class="vfield"><label>Paket pilihan <span class="pkg-count">${v.packages.length}</span></label>
+      <div class="pkg-list">${v.packages.map(p => renderPkgRow(p)).join('')}</div>
+      <button class="add-btn ghost small" data-action="addpkg">+ Tambah paket</button>
+    </div>
+    <div class="vfield"><label>Catatan</label><textarea data-field="notes">${escapeHtml(v.notes||'')}</textarea></div>
+    <div class="vfield"><label>Rating</label><div class="stars">${[1,2,3,4,5].map(i=>`<span data-star="${i}" class="${i<=(v.rating||0)?'on':''}">★</span>`).join('')}</div></div>
+    <div class="vcard-foot">
+      <select class="status-pill status-${v.status||'pertimbangan'}" data-field="status">
+        ${Object.entries(STATUS_LABELS).map(([k,l])=>`<option value="${k}" ${v.status===k?'selected':''}>${l}</option>`).join('')}
+      </select>
+      <button class="choose-btn ${v.chosen?'is-chosen':''}" data-action="choose">${v.chosen ? '✓ Dipilih' : 'Pilih'}</button>
+    </div>
+  `;
+
+  el.querySelector('[data-field="name"]').addEventListener('input', e=>{ v.name = e.target.value; scheduleSave(); });
+  el.querySelector('[data-field="contact"]').addEventListener('input', e=>{ v.contact = e.target.value; scheduleSave(); });
+  el.querySelector('[data-field="notes"]').addEventListener('input', e=>{ v.notes = e.target.value; scheduleSave(); });
+  el.querySelector('.del-x').addEventListener('click', ()=>{
+    state.vendors[cat] = state.vendors[cat].filter(x=>x.id!==v.id);
+    scheduleSave(); renderVendors(); renderDashboard();
+  });
+  el.querySelectorAll('[data-star]').forEach(star=>{
+    star.addEventListener('click', ()=>{ v.rating = Number(star.dataset.star); scheduleSave(); renderVendors(); });
+  });
+  const statusSel = el.querySelector('[data-field="status"]');
+  statusSel.addEventListener('change', e=>{
+    v.status = e.target.value;
+    statusSel.className = 'status-pill status-' + v.status;
+    scheduleSave(); renderDashboard();
+  });
+  el.querySelector('[data-action="choose"]').addEventListener('click', ()=>{
+    const willChoose = !v.chosen;
+    state.vendors[cat].forEach(x=>x.chosen=false);
+    v.chosen = willChoose;
+    scheduleSave(); renderVendors(); renderDashboard();
+  });
+  el.querySelector('[data-action="addpkg"]').addEventListener('click', ()=>{
+    v.packages.push({id:uid(), name:'Paket '+(v.packages.length+1), price:0, includes:'', chosen: v.packages.length===0});
+    scheduleSave(); renderVendors(); renderDashboard();
+  });
+
+  bindPkgEvents(el, v);
+  return el;
+}
+
+function renderPkgRow(p){
+  return `
+    <div class="pkg-row ${p.chosen ? 'selected':''}" data-pkg="${p.id}">
+      <button class="pkg-radio" data-pkgaction="select">${p.chosen ? '●' : ''}</button>
+      <input type="text" class="pkg-name" value="${escapeAttr(p.name)}" data-pkgfield="name">
+      <input type="text" class="pkg-price" value="${p.price ? formatRupiahInput(p.price) : ''}" placeholder="Rp 0" data-pkgfield="price">
+      <button class="pkg-del" data-pkgaction="del">✕</button>
+      <textarea class="pkg-includes" placeholder="Termasuk..." data-pkgfield="includes">${escapeHtml(p.includes||'')}</textarea>
+    </div>
+  `;
+}
+
+function bindPkgEvents(el, v){
+  el.querySelectorAll('.pkg-row').forEach(row=>{
+    const pid = row.dataset.pkg;
+    const p = v.packages.find(x=>x.id===pid);
+    if(!p) return;
+    row.querySelector('[data-pkgfield="name"]').addEventListener('input', e=>{ p.name = e.target.value; scheduleSave(); });
+    row.querySelector('[data-pkgfield="price"]').addEventListener('input', e=>{
+      const digits = e.target.value.replace(/\D/g,'');
+      p.price = Number(digits)||0;
+      e.target.value = p.price ? formatRupiahInput(p.price) : '';
+      scheduleSave(); renderDashboard();
+    });
+    row.querySelector('[data-pkgfield="includes"]').addEventListener('input', e=>{ p.includes = e.target.value; scheduleSave(); });
+    row.querySelector('[data-pkgaction="select"]').addEventListener('click', ()=>{
+      v.packages.forEach(x=>x.chosen=false);
+      p.chosen = true;
+      scheduleSave(); renderVendors(); renderDashboard();
+    });
+    row.querySelector('[data-pkgaction="del"]').addEventListener('click', ()=>{
+      const wasChosen = p.chosen;
+      v.packages = v.packages.filter(x=>x.id!==pid);
+      if(wasChosen && v.packages.length) v.packages[0].chosen = true;
+      scheduleSave(); renderVendors(); renderDashboard();
+    });
+  });
+}
+
+function escapeHtml(s){ return (s||'').replace(/[&<>]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])); }
+function escapeAttr(s){ return escapeHtml(s).replace(/"/g,'&quot;'); }
+
+document.getElementById('vendorCategories').addEventListener('click', e=>{
+  const btn = e.target.closest('button[data-cat]');
+  if(!btn) return;
+  const cat = btn.dataset.cat;
+  state.vendors[cat].push({id:uid(), name:'', contact:'', notes:'', rating:0, status:'pertimbangan', chosen:false,
+    packages:[{id:uid(), name:'Paket 1', price:0, includes:'', chosen:true}]});
+  scheduleSave(); renderVendors();
+});
+
+document.getElementById('addCategoryBtn').addEventListener('click', ()=>{
+  const name = prompt('Nama kategori vendor baru:');
+  if(name && name.trim()){
+    const clean = name.trim();
+    if(!state.vendors[clean]) state.vendors[clean] = [];
+    scheduleSave(); renderVendors();
+  }
+});
+
+const addTaskBtn = document.getElementById('addTaskBtn');
+addTaskBtn.addEventListener('click', ()=>{
+  const title = document.getElementById('taskTitle').value.trim();
+  if(!title) return;
+  state.checklist.push({id:uid(), title, due: document.getElementById('taskDue').value, priority: document.getElementById('taskPriority').value, done:false});
+  document.getElementById('taskTitle').value = '';
+  scheduleSave(); renderChecklist(); renderDashboard();
+});
+
+function renderChecklist(){
+  const done = state.checklist.filter(t=>t.done).length;
+  const total = state.checklist.length;
+  document.getElementById('clProgressText').textContent = total ? Math.round(done/total*100)+'%' : '0%';
+  document.getElementById('clProgressBar').style.width = total ? (done/total*100)+'%' : '0%';
+
+  const sorted = [...state.checklist].sort((a,b)=>{
+    if(a.done !== b.done) return a.done ? 1 : -1;
+    if(!a.due && !b.due) return 0;
+    if(!a.due) return 1;
+    if(!b.due) return -1;
+    return new Date(a.due) - new Date(b.due);
+  });
+
+  const wrap = document.getElementById('taskGroups');
+  wrap.innerHTML = '';
+  if(sorted.length === 0){
+    wrap.innerHTML = '<p class="section-sub">Belum ada tugas.</p>';
+    return;
+  }
+  sorted.forEach(t=>{
+    const row = document.createElement('div');
+    row.className = 'task-row' + (t.done ? ' done' : '');
+    const dueLabel = t.due ? new Date(t.due).toLocaleDateString('id-ID',{day:'numeric',month:'short',year:'numeric'}) : 'Tanpa tenggat';
+    row.innerHTML = `
+      <div class="task-check">${t.done ? '✓' : ''}</div>
+      <div class="task-body">
+        <div class="task-title">${escapeHtml(t.title)}</div>
+        <div class="task-meta"><span class="tag">${dueLabel}</span>${t.priority==='tinggi' ? '<span class="prio-tinggi">Prioritas tinggi</span>' : ''}</div>
+      </div>
+      <button class="task-del">✕</button>
+    `;
+    row.querySelector('.task-check').addEventListener('click', ()=>{ t.done = !t.done; scheduleSave(); renderChecklist(); renderDashboard(); });
+    row.querySelector('.task-del').addEventListener('click', ()=>{
+      state.checklist = state.checklist.filter(x=>x.id!==t.id);
+      scheduleSave(); renderChecklist(); renderDashboard();
+    });
+    wrap.appendChild(row);
+  });
+}
+</script>
+</body>
+</html>
