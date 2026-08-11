@@ -265,7 +265,7 @@
   .pkg-row{
     display:grid;
     grid-template-columns:22px minmax(50px,1fr) auto 20px;
-    grid-template-areas: "radio name price del" "empty includes includes includes";
+    grid-template-areas: "radio name price del" "empty includes includes includes" "empty brosur brosur brosur";
     align-items:center;
     gap:4px 6px;
     background:var(--paper);
@@ -276,14 +276,14 @@
   .pkg-row.selected{border-color:var(--gold);background:var(--gold-soft);}
   .pkg-radio{
     grid-area:radio;
-    width:18px;height:18px;border-radius:50%;border:1.5px solid var(--gold);
-    background:var(--card);color:var(--gold);font-size:9px;
+    width:18px;height:18px;border-radius:5px;border:1.5px solid var(--gold);
+    background:var(--card);color:var(--gold);font-size:11px;font-weight:700;
     display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0;
-    flex-shrink:0;
+    flex-shrink:0;line-height:1;
   }
   .pkg-row.selected .pkg-radio{background:var(--gold);color:#fff;}
   .pkg-name{grid-area:name;font-weight:600;min-width:0;width:100%;}
-  .pkg-price{grid-area:price;text-align:right;min-width:54px;max-width:150px;flex-shrink:0;}
+  .pkg-price{grid-area:price;text-align:right;min-width:90px;max-width:220px;flex-shrink:0;}
   .pkg-del{
     grid-area:del;background:none;border:none;color:var(--ink-soft);cursor:pointer;
     font-size:12px;padding:0;line-height:1;flex-shrink:0;
@@ -303,6 +303,17 @@
   }
   .pkg-name:focus, .pkg-price:focus{outline:none;border-color:var(--line);background:var(--card);}
   .add-btn.small{font-size:11px;padding:5px 11px;margin-top:2px;}
+  .pkg-brosur{grid-area:brosur;display:flex;align-items:center;gap:8px;margin-top:4px;flex-wrap:wrap;}
+  .brosur-thumb{width:40px;height:40px;object-fit:cover;border-radius:8px;border:1px solid var(--line);cursor:pointer;flex-shrink:0;}
+  .brosur-thumb:hover{border-color:var(--gold);}
+  .brosur-label{font-size:11px;color:var(--ink-soft);}
+  .mini-link{background:none;border:none;font-size:11px;font-weight:600;color:var(--ink-soft);cursor:pointer;padding:0;text-decoration:underline;}
+  .mini-link:hover{color:var(--ink);}
+  .mini-link.danger:hover{color:var(--danger);}
+  .brosur-view-card{background:transparent;box-shadow:none;max-width:min(92vw,720px);padding:0;}
+  .brosur-view-card::before{display:none;}
+  .brosur-view-card img{width:100%;max-height:82vh;object-fit:contain;border-radius:12px;box-shadow:var(--shadow);display:block;background:var(--card);}
+  .brosur-view-card .modal-close{top:-14px;right:-14px;background:var(--card);box-shadow:var(--shadow);}
   .stars{display:flex;gap:2px;font-size:16px;cursor:pointer;color:var(--line);}
   .stars span.on{color:var(--gold);}
   .vcard-foot{display:flex;justify-content:space-between;align-items:center;margin-top:2px;}
@@ -712,6 +723,13 @@
   </div>
 </div>
 
+<div class="modal-overlay" id="brosurViewOverlay">
+  <div class="modal-card brosur-view-card">
+    <button class="modal-close" id="brosurViewClose">✕</button>
+    <img id="brosurViewImg" src="" alt="Brosur paket">
+  </div>
+</div>
+
 <div id="syncIndicator" class="sync-status">Menyimpan...</div>
 <footer>Data tersimpan otomatis di Cloud Firebase.</footer>
 
@@ -794,7 +812,8 @@ onValue(dataRef, (snapshot) => {
     // Migrasi data lama jika diperlukan
     Object.keys(state.vendors).forEach(cat=>{
       state.vendors[cat].forEach(v=>{
-        if(!v.packages) v.packages = [{id:uid(), name:'Paket 1', price:0, includes:'', chosen:true}];
+        if(!v.packages) v.packages = [{id:uid(), name:'Paket 1', price:0, includes:'', chosen:true, brosur:null}];
+        v.packages.forEach(p=>{ if(p.brosur === undefined) p.brosur = null; });
       });
     });
     state.guests.forEach(g=>{
@@ -881,8 +900,9 @@ totalBudgetInput.addEventListener('input', ()=>{
 
 function vendorPrice(v){
   if(!v.packages || v.packages.length===0) return 0;
-  const p = v.packages.find(x=>x.chosen) || v.packages[0];
-  return Number(p.price)||0;
+  const chosenPkgs = v.packages.filter(x=>x.chosen);
+  if(chosenPkgs.length === 0) return Number(v.packages[0].price)||0;
+  return chosenPkgs.reduce((sum,x)=> sum + (Number(x.price)||0), 0);
 }
 
 function categorySpent(cat){
@@ -1007,7 +1027,7 @@ function renderVendorCard(cat, v){
     scheduleSave(); renderVendors(); renderDashboard();
   });
   el.querySelector('[data-action="addpkg"]').addEventListener('click', ()=>{
-    v.packages.push({id:uid(), name:'Paket '+(v.packages.length+1), price:0, includes:'', chosen: v.packages.length===0});
+    v.packages.push({id:uid(), name:'Paket '+(v.packages.length+1), price:0, includes:'', chosen: v.packages.length===0, brosur:null});
     scheduleSave(); renderVendors(); renderDashboard();
   });
 
@@ -1018,13 +1038,28 @@ function renderVendorCard(cat, v){
 function renderPkgRow(p){
   return `
     <div class="pkg-row ${p.chosen ? 'selected':''}" data-pkg="${p.id}">
-      <button class="pkg-radio" data-pkgaction="select">${p.chosen ? '●' : ''}</button>
+      <button class="pkg-radio" data-pkgaction="select" title="Pilih paket ini">${p.chosen ? '✓' : ''}</button>
       <input type="text" class="pkg-name" value="${escapeAttr(p.name)}" data-pkgfield="name">
       <input type="text" class="pkg-price" value="${p.price ? formatRupiahInput(p.price) : ''}" placeholder="Rp 0" data-pkgfield="price">
       <button class="pkg-del" data-pkgaction="del">✕</button>
       <textarea class="pkg-includes" placeholder="Termasuk..." data-pkgfield="includes">${escapeHtml(p.includes||'')}</textarea>
+      ${brosurAreaHtml(p)}
     </div>
   `;
+}
+
+function brosurAreaHtml(p){
+  if(p.brosur){
+    return `<div class="pkg-brosur">
+      <img src="${p.brosur}" class="brosur-thumb" data-pkgaction="viewbrosur" alt="Brosur ${escapeAttr(p.name)}">
+      <span class="brosur-label">Brosur tersimpan</span>
+      <button class="mini-link" data-pkgaction="changebrosur" type="button">Ganti</button>
+      <button class="mini-link danger" data-pkgaction="delbrosur" type="button">Hapus</button>
+    </div>`;
+  }
+  return `<div class="pkg-brosur">
+    <button class="add-btn ghost small" data-pkgaction="uploadbrosur" type="button">🖼 Upload Brosur</button>
+  </div>`;
 }
 
 function bindPkgEvents(el, v){
@@ -1041,8 +1076,7 @@ function bindPkgEvents(el, v){
     });
     row.querySelector('[data-pkgfield="includes"]').addEventListener('input', e=>{ p.includes = e.target.value; scheduleSave(); });
     row.querySelector('[data-pkgaction="select"]').addEventListener('click', ()=>{
-      v.packages.forEach(x=>x.chosen=false);
-      p.chosen = true;
+      p.chosen = !p.chosen;
       scheduleSave(); renderVendors(); renderDashboard();
     });
     row.querySelector('[data-pkgaction="del"]').addEventListener('click', ()=>{
@@ -1051,8 +1085,94 @@ function bindPkgEvents(el, v){
       if(wasChosen && v.packages.length) v.packages[0].chosen = true;
       scheduleSave(); renderVendors(); renderDashboard();
     });
+    const uploadBtn = row.querySelector('[data-pkgaction="uploadbrosur"], [data-pkgaction="changebrosur"]');
+    if(uploadBtn){
+      uploadBtn.addEventListener('click', ()=> triggerBrosurUpload(p));
+    }
+    const delBrosurBtn = row.querySelector('[data-pkgaction="delbrosur"]');
+    if(delBrosurBtn){
+      delBrosurBtn.addEventListener('click', ()=>{
+        if(confirm('Hapus brosur paket ini?')){
+          p.brosur = null;
+          scheduleSave(); renderVendors(); renderDashboard();
+        }
+      });
+    }
+    const viewBtn = row.querySelector('[data-pkgaction="viewbrosur"]');
+    if(viewBtn){
+      viewBtn.addEventListener('click', ()=> openBrosurViewer(p.brosur, p.name));
+    }
   });
 }
+
+/* ---- Upload & view brosur paket vendor ---- */
+let brosurUploadInput = null;
+
+function ensureBrosurInput(){
+  if(brosurUploadInput) return brosurUploadInput;
+  brosurUploadInput = document.createElement('input');
+  brosurUploadInput.type = 'file';
+  brosurUploadInput.accept = 'image/*';
+  brosurUploadInput.style.display = 'none';
+  document.body.appendChild(brosurUploadInput);
+  return brosurUploadInput;
+}
+
+function compressImage(file, maxDim, quality){
+  return new Promise((resolve, reject)=>{
+    const reader = new FileReader();
+    reader.onload = e=>{
+      const img = new Image();
+      img.onload = ()=>{
+        let w = img.width, h = img.height;
+        if(w > maxDim || h > maxDim){
+          if(w >= h){ h = Math.round(h * maxDim / w); w = maxDim; }
+          else { w = Math.round(w * maxDim / h); h = maxDim; }
+        }
+        const canvas = document.createElement('canvas');
+        canvas.width = w; canvas.height = h;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, w, h);
+        resolve(canvas.toDataURL('image/jpeg', quality));
+      };
+      img.onerror = ()=> reject(new Error('Gagal membaca gambar'));
+      img.src = e.target.result;
+    };
+    reader.onerror = ()=> reject(new Error('Gagal membaca file'));
+    reader.readAsDataURL(file);
+  });
+}
+
+function triggerBrosurUpload(p){
+  const input = ensureBrosurInput();
+  input.value = '';
+  input.onchange = async ()=>{
+    const file = input.files[0];
+    if(!file) return;
+    if(!file.type.startsWith('image/')){ alert('File harus berupa gambar.'); return; }
+    try{
+      const dataUrl = await compressImage(file, 1280, 0.75);
+      p.brosur = dataUrl;
+      scheduleSave(); renderVendors(); renderDashboard();
+    }catch(err){
+      console.error(err);
+      alert('Gagal memproses gambar, coba gambar lain.');
+    }
+  };
+  input.click();
+}
+
+function openBrosurViewer(src, name){
+  if(!src) return;
+  const img = document.getElementById('brosurViewImg');
+  img.src = src;
+  img.alt = 'Brosur ' + (name || '');
+  document.getElementById('brosurViewOverlay').classList.add('show');
+}
+document.getElementById('brosurViewClose').addEventListener('click', ()=>document.getElementById('brosurViewOverlay').classList.remove('show'));
+document.getElementById('brosurViewOverlay').addEventListener('click', e=>{ if(e.target.id==='brosurViewOverlay') document.getElementById('brosurViewOverlay').classList.remove('show'); });
+
+
 
 function escapeHtml(s){ return (s||'').replace(/[&<>]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])); }
 function escapeAttr(s){ return escapeHtml(s).replace(/"/g,'&quot;'); }
@@ -1062,7 +1182,7 @@ document.getElementById('vendorCategories').addEventListener('click', e=>{
   if(!btn) return;
   const cat = btn.dataset.cat;
   state.vendors[cat].push({id:uid(), name:'', contact:'', notes:'', rating:0, status:'pertimbangan', chosen:false,
-    packages:[{id:uid(), name:'Paket 1', price:0, includes:'', chosen:true}]});
+    packages:[{id:uid(), name:'Paket 1', price:0, includes:'', chosen:true, brosur:null}]});
   scheduleSave(); renderVendors();
 });
 
