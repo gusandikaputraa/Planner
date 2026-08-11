@@ -389,6 +389,120 @@
     z-index: 100;
   }
   .sync-status.show { opacity: 0.8; }
+
+  /* ---- Auto-grow textarea columns ---- */
+  .pkg-includes, .vfield textarea{ overflow:hidden; }
+
+  /* ---- Guest list (Daftar Tamu) ---- */
+  .card.acc-gold{border-left:3px solid var(--gold);}
+  .card.acc-sage{border-left:3px solid var(--sage);}
+  .card.acc-rose{border-left:3px solid var(--rose);}
+  .card.acc-slate{border-left:3px solid #6C8CAE;}
+
+  .guest-toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px;}
+  .search-wrap{flex:1;min-width:180px;}
+  .search-wrap input{
+    width:100%;font-family:'Inter',sans-serif;font-size:13px;border:1px solid var(--line);
+    background:var(--card);padding:9px 14px;border-radius:20px;color:var(--ink);
+  }
+  .guest-filters{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px;}
+  .guest-chip{
+    font-family:'Inter',sans-serif;font-size:12px;font-weight:600;letter-spacing:0.3px;
+    background:var(--card);border:1px solid var(--line);color:var(--ink-soft);
+    padding:7px 14px;border-radius:20px;cursor:pointer;display:flex;align-items:center;gap:6px;
+  }
+  .guest-chip:hover{color:var(--ink);}
+  .guest-chip.active{background:var(--ink);color:var(--paper);border-color:var(--ink);}
+  .guest-chip .chip-count{
+    background:rgba(0,0,0,0.12);font-size:10px;font-weight:700;padding:1px 7px;border-radius:9px;
+  }
+  .guest-chip.active .chip-count{background:rgba(255,255,255,0.2);}
+
+  .guest-table-wrap{
+    background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+    overflow-x:auto;box-shadow:var(--shadow);
+  }
+  table.guest-table{width:100%;border-collapse:collapse;min-width:680px;}
+  table.guest-table thead th{
+    text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:1px;
+    color:var(--ink-soft);font-weight:600;padding:12px 16px;border-bottom:1px solid var(--line);
+    white-space:nowrap;
+  }
+  table.guest-table tbody td{
+    padding:12px 16px;font-size:13.5px;border-bottom:1px solid var(--line);vertical-align:middle;
+  }
+  table.guest-table tbody tr:last-child td{border-bottom:none;}
+  table.guest-table tbody tr:hover{background:var(--paper);}
+  .gt-name{font-family:'Fraunces',serif;font-weight:500;}
+  .kelompok-pill{
+    font-size:11px;font-weight:600;background:var(--sage-soft);color:var(--ink-soft);
+    padding:4px 10px;border-radius:12px;white-space:nowrap;
+  }
+  .status-pill.und-belum{background:#F3E4E2;color:var(--danger);}
+  .status-pill.und-sudah{background:var(--sage-soft);color:#3E6B57;}
+  .status-pill.kon-belum{background:var(--gold-soft);color:#8C6E1F;}
+  .status-pill.kon-hadir{background:var(--sage-soft);color:#3E6B57;}
+  .status-pill.kon-tidak{background:#F3E4E2;color:var(--danger);}
+  .gt-actions{display:flex;gap:6px;white-space:nowrap;}
+  .icon-btn{
+    width:28px;height:28px;border-radius:8px;border:1px solid var(--line);background:var(--paper);
+    color:var(--ink-soft);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;font-size:12px;
+  }
+  .icon-btn:hover{color:var(--ink);}
+  .icon-btn.danger:hover{color:var(--danger);border-color:var(--danger);background:#F3E4E2;}
+
+  .modal-overlay{
+    display:none;position:fixed;inset:0;background:rgba(27,46,40,0.45);
+    align-items:flex-start;justify-content:center;padding:40px 16px;overflow-y:auto;z-index:200;
+  }
+  .modal-overlay.show{display:flex;}
+  .modal-card{
+    background:var(--card);border-radius:18px;max-width:480px;width:100%;
+    padding:28px 26px 22px;box-shadow:var(--shadow);position:relative;
+  }
+  .modal-card::before{
+    content:"";position:absolute;top:0;left:0;right:0;height:4px;border-radius:18px 18px 0 0;
+    background:linear-gradient(90deg,var(--rose),var(--gold));
+  }
+  .modal-close{
+    position:absolute;top:14px;right:14px;width:28px;height:28px;border-radius:50%;
+    border:none;background:var(--sage-soft);color:var(--ink-soft);cursor:pointer;font-size:13px;
+  }
+  .modal-badge{
+    display:inline-block;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;
+    background:var(--gold-soft);color:#8C6E1F;padding:4px 12px;border-radius:12px;margin-bottom:12px;
+  }
+  .modal-title{font-family:'Fraunces',serif;font-style:italic;font-size:21px;margin:0 0 4px;text-align:center;}
+  .modal-sub{font-size:12.5px;color:var(--ink-soft);text-align:center;margin:0 0 18px;}
+  .modal-body{display:flex;flex-direction:column;gap:14px;border-top:1px solid var(--line);padding-top:16px;}
+  .mfield{display:flex;flex-direction:column;gap:5px;}
+  .mfield label{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--ink-soft);font-weight:600;}
+  .mfield .req{color:var(--rose);}
+  .mfield input, .mfield select{
+    font-family:'Inter',sans-serif;font-size:14px;border:1px solid var(--line);
+    border-radius:9px;padding:9px 12px;background:var(--paper);color:var(--ink);
+  }
+  .mfield input:focus, .mfield select:focus{outline:none;border-color:var(--gold);}
+  .mfield .hint{font-size:11px;color:var(--ink-soft);font-style:italic;}
+  .mrow2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .toggle-group{display:flex;gap:8px;flex-wrap:wrap;}
+  .toggle-group button{
+    flex:1;min-width:80px;font-family:'Inter',sans-serif;font-size:12.5px;font-weight:600;
+    padding:9px 10px;border-radius:10px;border:1px solid var(--line);background:var(--paper);
+    color:var(--ink-soft);cursor:pointer;
+  }
+  .toggle-group button.active{background:var(--rose);border-color:var(--rose);color:#fff;}
+  #gKonfirmasiToggle button.active{background:var(--gold);border-color:var(--gold);}
+  .modal-footer{display:flex;justify-content:flex-end;gap:10px;margin-top:20px;padding-top:16px;border-top:1px solid var(--line);}
+  .group-row{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
+  .group-row .group-rename{
+    flex:1;font-family:'Inter',sans-serif;font-size:13px;border:1px solid var(--line);
+    border-radius:8px;padding:7px 10px;background:var(--paper);color:var(--ink);
+  }
+
+  @media(max-width:520px){
+    .mrow2{grid-template-columns:1fr;}
+  }
 </style>
 </head>
 <body>
@@ -409,6 +523,7 @@
   <button data-view="dashboard" class="active">Ringkasan</button>
   <button data-view="vendor">Vendor</button>
   <button data-view="checklist">Checklist</button>
+  <button data-view="guests">Tamu</button>
 </nav>
 
 <main>
@@ -470,7 +585,132 @@
     </div>
     <div id="taskGroups"></div>
   </section>
+
+  <section class="view" id="view-guests">
+    <p class="section-title">Daftar Undangan</p>
+    <p class="section-sub">Tracking RSVP, kelompok tamu, dan total porsi catering.</p>
+
+    <div class="grid-cards">
+      <div class="card acc-gold">
+        <div class="label">Total Tamu</div>
+        <div class="value" id="gTotalTamu">0</div>
+      </div>
+      <div class="card acc-sage">
+        <div class="label">Hadir</div>
+        <div class="value" id="gHadir">0</div>
+      </div>
+      <div class="card acc-rose">
+        <div class="label">Belum Konfirmasi</div>
+        <div class="value" id="gBelum">0</div>
+      </div>
+      <div class="card acc-slate">
+        <div class="label">Total Porsi</div>
+        <div class="value" id="gPorsi">0</div>
+      </div>
+    </div>
+
+    <div class="guest-toolbar">
+      <div class="search-wrap">
+        <input type="text" id="guestSearch" placeholder="Cari nama tamu...">
+      </div>
+      <button class="add-btn ghost" id="manageGroupsBtn">⚙ Kelola Kelompok</button>
+      <button class="add-btn" id="addGuestBtn">+ Tambah Tamu</button>
+    </div>
+
+    <div class="guest-filters" id="guestFilters"></div>
+
+    <div class="guest-table-wrap">
+      <table class="guest-table">
+        <thead>
+          <tr>
+            <th>Nama Tamu</th>
+            <th>WA / HP</th>
+            <th>Kelompok</th>
+            <th>Undangan</th>
+            <th>Konfirmasi</th>
+            <th>Jumlah</th>
+            <th>Aksi</th>
+          </tr>
+        </thead>
+        <tbody id="guestTableBody"></tbody>
+      </table>
+      <p class="section-sub" id="guestEmptyMsg" style="display:none;padding:16px;">Belum ada tamu. Klik "+ Tambah Tamu" untuk menambahkan.</p>
+    </div>
+  </section>
 </main>
+
+<div class="modal-overlay" id="guestModalOverlay">
+  <div class="modal-card">
+    <button class="modal-close" id="guestModalClose">✕</button>
+    <div style="text-align:center;">
+      <span class="modal-badge" id="guestModalBadge">+ TAMBAH BARU</span>
+    </div>
+    <p class="modal-title" id="guestModalTitle">Tambah Tamu Undangan</p>
+    <p class="modal-sub">Catat tamu untuk tracking RSVP & menghitung porsi catering</p>
+    <div class="modal-body">
+      <div class="mfield">
+        <label>Nama Tamu <span class="req">*</span></label>
+        <input type="text" id="gName" placeholder="Nama tamu">
+      </div>
+      <div class="mrow2">
+        <div class="mfield">
+          <label>No. WhatsApp</label>
+          <input type="text" id="gPhone" placeholder="08xxxxxxxxxx">
+        </div>
+        <div class="mfield">
+          <label>Jumlah Orang <span class="req">*</span></label>
+          <input type="number" min="1" id="gJumlah" value="1">
+        </div>
+      </div>
+      <div class="mfield">
+        <label>Kelompok <span class="req">*</span></label>
+        <select id="gKelompok"></select>
+      </div>
+      <div class="mfield">
+        <label>Nama Kelompok Baru (kalau pilih "+ Buat kelompok baru")</label>
+        <input type="text" id="gKelompokBaru" placeholder="Nama kelompok baru">
+        <div class="hint">Diabaikan kalau pilih kelompok existing</div>
+      </div>
+      <div class="mfield">
+        <label>Status Undangan</label>
+        <div class="toggle-group" id="gUndanganToggle">
+          <button type="button" data-val="belum" class="active">Belum</button>
+          <button type="button" data-val="sudah">Sudah</button>
+        </div>
+      </div>
+      <div class="mfield">
+        <label>Konfirmasi RSVP</label>
+        <div class="toggle-group" id="gKonfirmasiToggle">
+          <button type="button" data-val="belum" class="active">Belum</button>
+          <button type="button" data-val="hadir">Hadir</button>
+          <button type="button" data-val="tidak">Tidak</button>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="add-btn ghost" id="guestModalCancel">Batal</button>
+      <button class="add-btn" id="guestModalSubmit">✓ Tambah Data</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="groupModalOverlay">
+  <div class="modal-card">
+    <button class="modal-close" id="groupModalClose">✕</button>
+    <p class="modal-title">Kelola Kelompok</p>
+    <p class="modal-sub">Tambah, ubah nama, atau hapus kelompok tamu undangan.</p>
+    <div class="modal-body">
+      <div id="groupListWrap"></div>
+      <div class="mrow2">
+        <input type="text" id="newGroupName" placeholder="Nama kelompok baru">
+        <button class="add-btn" id="addGroupBtn">+ Tambah Kelompok</button>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="add-btn ghost" id="groupModalDone">Selesai</button>
+    </div>
+  </div>
+</div>
 
 <div id="syncIndicator" class="sync-status">Menyimpan...</div>
 <footer>Data tersimpan otomatis di Cloud Firebase.</footer>
@@ -509,12 +749,16 @@ const dataRef = ref(db, 'wedding_planner_data');
 
 const DEFAULT_CATEGORIES = ["Venue", "Katering", "Dekorasi", "Fotografi & Video", "MUA & Busana", "MC & Hiburan", "Undangan & Souvenir"];
 const STATUS_LABELS = {pertimbangan:"Pertimbangan", dihubungi:"Dihubungi", deal:"Deal", ditolak:"Ditolak"};
+const DEFAULT_GUEST_GROUPS = ["MESEDEK-GUS","MEMADIK-GEK","MEMADIK-GUS","MESEDEK-GEK","PAWIWAHAN-GEK","PAWIWAHAN-GUS","RESEPSI-GEK","RESEPSI-GUS"];
+const KONFIRMASI_LABELS = {belum:"Belum", hadir:"Hadir", tidak:"Tidak"};
 
 let state = {
   weddingDate: "",
   totalBudget: 0,
   vendors: {},
-  checklist: []
+  checklist: [],
+  guests: [],
+  guestGroups: []
 };
 
 let isInitialLoad = true;
@@ -544,6 +788,8 @@ onValue(dataRef, (snapshot) => {
     state = data;
     if(!state.vendors) state.vendors = {};
     if(!state.checklist) state.checklist = [];
+    if(!state.guests) state.guests = [];
+    if(!state.guestGroups || !state.guestGroups.length) state.guestGroups = [...DEFAULT_GUEST_GROUPS];
     
     // Migrasi data lama jika diperlukan
     Object.keys(state.vendors).forEach(cat=>{
@@ -551,11 +797,17 @@ onValue(dataRef, (snapshot) => {
         if(!v.packages) v.packages = [{id:uid(), name:'Paket 1', price:0, includes:'', chosen:true}];
       });
     });
+    state.guests.forEach(g=>{
+      if(!g.undangan) g.undangan = 'belum';
+      if(!g.konfirmasi) g.konfirmasi = 'belum';
+      if(!g.jumlah) g.jumlah = 1;
+    });
 
     updateUIFromState();
   } else if (isInitialLoad) {
     // Jalankan default jika database kosong
     DEFAULT_CATEGORIES.forEach(c => state.vendors[c] = []);
+    state.guestGroups = [...DEFAULT_GUEST_GROUPS];
     updateUIFromState();
   }
   isInitialLoad = false;
@@ -568,6 +820,7 @@ function updateUIFromState(){
   renderDashboard();
   renderVendors();
   renderChecklist();
+  renderGuests();
 }
 
 function uid(){ return Math.random().toString(36).slice(2,10); }
@@ -588,6 +841,7 @@ window.switchView = (viewName) => {
     document.querySelector(`nav.tabs button[data-view="${viewName}"]`).classList.add('active');
     document.getElementById('view-'+viewName).classList.add('active');
     if(viewName === 'dashboard') renderDashboard();
+    if(viewName === 'guests') renderGuests();
 };
 
 document.querySelectorAll('nav.tabs button').forEach(btn=>{
@@ -672,6 +926,16 @@ function renderDashboard(){
   }
 }
 
+function autoGrow(el){
+  el.style.height = 'auto';
+  el.style.height = el.scrollHeight + 'px';
+}
+document.addEventListener('input', e=>{
+  if(e.target.matches && e.target.matches('.pkg-includes, .vfield textarea')){
+    autoGrow(e.target);
+  }
+});
+
 function renderVendors(){
   const wrap = document.getElementById('vendorCategories');
   wrap.innerHTML = '';
@@ -694,6 +958,7 @@ function renderVendors(){
       list.forEach(v => grid.appendChild(renderVendorCard(cat, v)));
     }
   });
+  wrap.querySelectorAll('.pkg-includes, .vfield textarea').forEach(autoGrow);
 }
 
 function renderVendorCard(cat, v){
@@ -859,6 +1124,226 @@ function renderChecklist(){
     wrap.appendChild(row);
   });
 }
+
+/* ================= Daftar Tamu (Guest List) ================= */
+
+let guestActiveFilter = 'semua';
+let guestSearchTerm = '';
+let editingGuestId = null;
+
+function renderGuestStats(){
+  const total = state.guests.length;
+  const hadir = state.guests.filter(g=>g.konfirmasi==='hadir').length;
+  const belum = state.guests.filter(g=>g.konfirmasi==='belum').length;
+  const porsi = state.guests.filter(g=>g.konfirmasi==='hadir').reduce((s,g)=>s+(Number(g.jumlah)||0),0);
+  document.getElementById('gTotalTamu').textContent = total;
+  document.getElementById('gHadir').textContent = hadir;
+  document.getElementById('gBelum').textContent = belum;
+  document.getElementById('gPorsi').textContent = porsi;
+}
+
+function renderGuestFilters(){
+  const wrap = document.getElementById('guestFilters');
+  const counts = {};
+  state.guests.forEach(g=>{ if(g.kelompok) counts[g.kelompok] = (counts[g.kelompok]||0)+1; });
+  let html = `<button class="guest-chip ${guestActiveFilter==='semua'?'active':''}" data-filter="semua">SEMUA <span class="chip-count">${state.guests.length}</span></button>`;
+  state.guestGroups.forEach(grp=>{
+    const c = counts[grp]||0;
+    html += `<button class="guest-chip ${guestActiveFilter===grp?'active':''}" data-filter="${escapeAttr(grp)}">${escapeHtml(grp)}${c?` <span class="chip-count">${c}</span>`:''}</button>`;
+  });
+  wrap.innerHTML = html;
+  wrap.querySelectorAll('.guest-chip').forEach(btn=>{
+    btn.addEventListener('click', ()=>{ guestActiveFilter = btn.dataset.filter; renderGuestFilters(); renderGuestTable(); });
+  });
+}
+
+function renderGuestTable(){
+  const tbody = document.getElementById('guestTableBody');
+  const term = guestSearchTerm.trim().toLowerCase();
+  const list = state.guests.filter(g=>{
+    if(guestActiveFilter !== 'semua' && g.kelompok !== guestActiveFilter) return false;
+    if(term && !g.name.toLowerCase().includes(term)) return false;
+    return true;
+  });
+  tbody.innerHTML = '';
+  document.getElementById('guestEmptyMsg').style.display = list.length ? 'none' : 'block';
+  list.forEach(g=>{
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td class="gt-name">${escapeHtml(g.name)}</td>
+      <td>${escapeHtml(g.phone||'-')}</td>
+      <td>${g.kelompok ? `<span class="kelompok-pill">${escapeHtml(g.kelompok)}</span>` : '-'}</td>
+      <td><span class="status-pill und-${g.undangan}">${g.undangan==='sudah'?'Sudah':'Belum'}</span></td>
+      <td><span class="status-pill kon-${g.konfirmasi}">${KONFIRMASI_LABELS[g.konfirmasi]||'Belum'}</span></td>
+      <td>${g.jumlah}</td>
+      <td class="gt-actions">
+        <button class="icon-btn" data-action="edit" data-id="${g.id}" title="Edit">✎</button>
+        <button class="icon-btn danger" data-action="del" data-id="${g.id}" title="Hapus">🗑</button>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+function renderGuests(){
+  renderGuestStats();
+  renderGuestFilters();
+  renderGuestTable();
+}
+
+document.getElementById('guestTableBody').addEventListener('click', e=>{
+  const btn = e.target.closest('button[data-action]');
+  if(!btn) return;
+  const id = btn.dataset.id;
+  if(btn.dataset.action === 'del'){
+    const g = state.guests.find(x=>x.id===id);
+    if(g && confirm(`Hapus tamu "${g.name}"?`)){
+      state.guests = state.guests.filter(x=>x.id!==id);
+      scheduleSave(); renderGuests();
+    }
+  } else if(btn.dataset.action === 'edit'){
+    openGuestModal(state.guests.find(x=>x.id===id));
+  }
+});
+
+document.getElementById('guestSearch').addEventListener('input', e=>{
+  guestSearchTerm = e.target.value;
+  renderGuestTable();
+});
+
+function populateKelompokSelect(selected){
+  const sel = document.getElementById('gKelompok');
+  sel.innerHTML = state.guestGroups.map(g=>`<option value="${escapeAttr(g)}">${escapeHtml(g)}</option>`).join('')
+    + `<option value="__new__">+ Buat kelompok baru</option>`;
+  sel.value = (selected && state.guestGroups.includes(selected)) ? selected : (state.guestGroups[0] || '__new__');
+}
+
+function setToggleValue(groupId, val){
+  document.getElementById(groupId).querySelectorAll('button').forEach(b=>b.classList.toggle('active', b.dataset.val===val));
+}
+function getToggleValue(groupId){
+  const active = document.getElementById(groupId).querySelector('button.active');
+  return active ? active.dataset.val : null;
+}
+document.querySelectorAll('#gUndanganToggle button, #gKonfirmasiToggle button').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    btn.parentElement.querySelectorAll('button').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+  });
+});
+
+function openGuestModal(guest){
+  editingGuestId = guest ? guest.id : null;
+  populateKelompokSelect(guest ? guest.kelompok : null);
+  document.getElementById('guestModalBadge').textContent = guest ? 'EDIT TAMU' : '+ TAMBAH BARU';
+  document.getElementById('guestModalTitle').textContent = guest ? 'Edit Tamu Undangan' : 'Tambah Tamu Undangan';
+  document.getElementById('guestModalSubmit').textContent = guest ? '✓ Simpan Perubahan' : '✓ Tambah Data';
+  document.getElementById('gName').value = guest ? guest.name : '';
+  document.getElementById('gPhone').value = guest ? (guest.phone||'') : '';
+  document.getElementById('gJumlah').value = guest ? guest.jumlah : 1;
+  document.getElementById('gKelompokBaru').value = '';
+  setToggleValue('gUndanganToggle', guest ? guest.undangan : 'belum');
+  setToggleValue('gKonfirmasiToggle', guest ? guest.konfirmasi : 'belum');
+  document.getElementById('guestModalOverlay').classList.add('show');
+  document.getElementById('gName').focus();
+}
+
+function closeGuestModal(){
+  document.getElementById('guestModalOverlay').classList.remove('show');
+  editingGuestId = null;
+}
+
+document.getElementById('addGuestBtn').addEventListener('click', ()=>openGuestModal(null));
+document.getElementById('guestModalClose').addEventListener('click', closeGuestModal);
+document.getElementById('guestModalCancel').addEventListener('click', closeGuestModal);
+document.getElementById('guestModalOverlay').addEventListener('click', e=>{ if(e.target.id==='guestModalOverlay') closeGuestModal(); });
+
+document.getElementById('guestModalSubmit').addEventListener('click', ()=>{
+  const name = document.getElementById('gName').value.trim();
+  if(!name){ alert('Nama tamu wajib diisi.'); return; }
+  let kelompok = document.getElementById('gKelompok').value;
+  if(kelompok === '__new__'){
+    const newName = document.getElementById('gKelompokBaru').value.trim();
+    if(!newName){ alert('Nama kelompok baru wajib diisi.'); return; }
+    kelompok = newName;
+    if(!state.guestGroups.includes(kelompok)) state.guestGroups.push(kelompok);
+  }
+  const jumlah = Math.max(1, Number(document.getElementById('gJumlah').value)||1);
+  const phone = document.getElementById('gPhone').value.trim();
+  const undangan = getToggleValue('gUndanganToggle') || 'belum';
+  const konfirmasi = getToggleValue('gKonfirmasiToggle') || 'belum';
+
+  if(editingGuestId){
+    const g = state.guests.find(x=>x.id===editingGuestId);
+    if(g) Object.assign(g, {name, phone, jumlah, kelompok, undangan, konfirmasi});
+  } else {
+    state.guests.push({id:uid(), name, phone, jumlah, kelompok, undangan, konfirmasi});
+  }
+  scheduleSave(); closeGuestModal(); renderGuests();
+});
+
+function renderGroupList(){
+  const wrap = document.getElementById('groupListWrap');
+  wrap.innerHTML = '';
+  if(!state.guestGroups.length){
+    wrap.innerHTML = '<p class="section-sub">Belum ada kelompok.</p>';
+    return;
+  }
+  state.guestGroups.forEach((grp, idx)=>{
+    const count = state.guests.filter(g=>g.kelompok===grp).length;
+    const row = document.createElement('div');
+    row.className = 'group-row';
+    row.innerHTML = `
+      <input type="text" value="${escapeAttr(grp)}" data-idx="${idx}" class="group-rename">
+      <span class="chip-count" style="background:var(--sage-soft);color:var(--ink-soft);">${count}</span>
+      <button class="icon-btn danger" data-idx="${idx}" data-action="delgroup" title="Hapus kelompok">🗑</button>
+    `;
+    wrap.appendChild(row);
+  });
+  wrap.querySelectorAll('.group-rename').forEach(inp=>{
+    inp.addEventListener('change', ()=>{
+      const idx = Number(inp.dataset.idx);
+      const oldName = state.guestGroups[idx];
+      const newName = inp.value.trim();
+      if(!newName || newName === oldName){ inp.value = oldName; return; }
+      if(state.guestGroups.includes(newName)){ alert('Nama kelompok sudah ada.'); inp.value = oldName; return; }
+      state.guestGroups[idx] = newName;
+      state.guests.forEach(g=>{ if(g.kelompok === oldName) g.kelompok = newName; });
+      if(guestActiveFilter === oldName) guestActiveFilter = newName;
+      scheduleSave(); renderGroupList(); renderGuests();
+    });
+  });
+  wrap.querySelectorAll('[data-action="delgroup"]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const idx = Number(btn.dataset.idx);
+      const grp = state.guestGroups[idx];
+      const count = state.guests.filter(g=>g.kelompok===grp).length;
+      if(count>0 && !confirm(`Kelompok "${grp}" memiliki ${count} tamu. Hapus kelompok ini? Tamu terkait tidak akan dihapus, tapi label kelompoknya akan dikosongkan.`)) return;
+      state.guestGroups.splice(idx,1);
+      state.guests.forEach(g=>{ if(g.kelompok===grp) g.kelompok=''; });
+      if(guestActiveFilter === grp) guestActiveFilter = 'semua';
+      scheduleSave(); renderGroupList(); renderGuests();
+    });
+  });
+}
+
+document.getElementById('manageGroupsBtn').addEventListener('click', ()=>{
+  renderGroupList();
+  document.getElementById('groupModalOverlay').classList.add('show');
+});
+document.getElementById('groupModalClose').addEventListener('click', ()=>document.getElementById('groupModalOverlay').classList.remove('show'));
+document.getElementById('groupModalDone').addEventListener('click', ()=>document.getElementById('groupModalOverlay').classList.remove('show'));
+document.getElementById('groupModalOverlay').addEventListener('click', e=>{ if(e.target.id==='groupModalOverlay') document.getElementById('groupModalOverlay').classList.remove('show'); });
+
+document.getElementById('addGroupBtn').addEventListener('click', ()=>{
+  const inp = document.getElementById('newGroupName');
+  const name = inp.value.trim();
+  if(!name) return;
+  if(state.guestGroups.includes(name)){ alert('Kelompok sudah ada.'); return; }
+  state.guestGroups.push(name);
+  inp.value = '';
+  scheduleSave(); renderGroupList(); renderGuests();
+});
 </script>
 </body>
 </html>
