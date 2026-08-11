@@ -781,6 +781,9 @@ let state = {
 
 let isInitialLoad = true;
 let saveTimer = null;
+let lastSavedSnapshot = null;
+let hasPendingChanges = false;
+const IDLE_SAVE_DELAY = 5 * 60 * 1000; // simpan otomatis setelah idle 5 menit
 
 function showSync(){
   const el = document.getElementById('syncIndicator');
@@ -789,20 +792,57 @@ function showSync(){
 }
 
 function scheduleSave(){
+  hasPendingChanges = true;
   clearTimeout(saveTimer);
-  saveTimer = setTimeout(saveToFirebase, 800);
+  saveTimer = setTimeout(saveToFirebase, IDLE_SAVE_DELAY);
+}
+
+// Simpan sekarang juga (tanpa menunggu idle) - dipakai saat user pindah fokus
+// dari sebuah field, pindah tab/aplikasi, atau menutup halaman, supaya perubahan
+// tidak menunggu penuh 5 menit tapi kursor tetap tidak terganggu saat sedang mengetik.
+function flushSaveNow(){
+  if(!hasPendingChanges) return;
+  clearTimeout(saveTimer);
+  saveToFirebase();
+}
+
+document.addEventListener('visibilitychange', ()=>{
+  if(document.hidden) flushSaveNow();
+});
+window.addEventListener('beforeunload', flushSaveNow);
+
+// Stringify yang urutan key-nya konsisten, supaya perbandingan data lokal vs
+// data dari Firebase tidak salah beda hanya karena urutan key berubah.
+function stableStringify(obj){
+  if(Array.isArray(obj)){
+    return '[' + obj.map(stableStringify).join(',') + ']';
+  } else if(obj !== null && typeof obj === 'object'){
+    const keys = Object.keys(obj).sort();
+    return '{' + keys.map(k => JSON.stringify(k)+':'+stableStringify(obj[k])).join(',') + '}';
+  }
+  return JSON.stringify(obj);
 }
 
 async function saveToFirebase(){
   showSync();
   try {
+    lastSavedSnapshot = stableStringify(state);
+    hasPendingChanges = false;
     await set(dataRef, state);
-  } catch(e) { console.error("Gagal sinkron ke Firebase", e); }
+  } catch(e) { console.error("Gagal sinkron ke Firebase", e); hasPendingChanges = true; }
 }
 
 onValue(dataRef, (snapshot) => {
   const data = snapshot.val();
   if (data) {
+    // Kalau data yang masuk persis sama dengan yang baru saja kita simpan sendiri,
+    // ini cuma "gema" dari perubahan kita sendiri di Firebase. Lewati render ulang
+    // supaya form yang sedang diketik tidak kehilangan fokus/kursor.
+    if(lastSavedSnapshot !== null && stableStringify(data) === lastSavedSnapshot){
+      isInitialLoad = false;
+      return;
+    }
+
     state = data;
     if(!state.vendors) state.vendors = {};
     if(!state.checklist) state.checklist = [];
