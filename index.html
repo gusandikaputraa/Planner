@@ -285,8 +285,8 @@
   .pkg-list{display:flex;flex-direction:column;gap:6px;}
   .pkg-row{
     display:grid;
-    grid-template-columns:22px minmax(50px,1fr) auto 20px;
-    grid-template-areas: "radio name price del" "empty calc calc calc" "empty includes includes includes" "empty brosur brosur brosur";
+    grid-template-columns:22px minmax(30px,1fr) auto 54px 20px;
+    grid-template-areas: "radio name price qty del" "empty total total total total" "empty includes includes includes includes" "empty brosur brosur brosur brosur";
     align-items:center;
     gap:4px 6px;
     background:var(--paper);
@@ -304,7 +304,7 @@
   }
   .pkg-row.selected .pkg-radio{background:var(--gold);color:#fff;}
   .pkg-name{grid-area:name;font-weight:600;min-width:0;width:100%;}
-  .pkg-price{grid-area:price;text-align:right;min-width:90px;max-width:220px;flex-shrink:0;}
+  .pkg-price{grid-area:price;text-align:right;min-width:66px;max-width:140px;flex-shrink:0;}
   .pkg-del{
     grid-area:del;background:none;border:none;color:var(--ink-soft);cursor:pointer;
     font-size:12px;padding:0;line-height:1;flex-shrink:0;
@@ -317,19 +317,23 @@
     font-family:'Inter',sans-serif;line-height:1.4;display:block;
   }
   .pkg-includes:focus{outline:none;color:var(--ink);}
-  .pkg-name, .pkg-price{
+  .pkg-name, .pkg-price, .pkg-qty{
     font-family:'Inter',sans-serif;font-size:12.5px;border:1px solid transparent;
     border-radius:6px;padding:3px 6px;background:transparent;color:var(--ink);
     box-sizing:border-box;
   }
-  .pkg-name:focus, .pkg-price:focus{outline:none;border-color:var(--line);background:var(--card);}
-  .pkg-calc{grid-area:calc;display:flex;align-items:center;gap:6px;font-size:11px;color:var(--ink-soft);margin-top:1px;flex-wrap:wrap;}
+  .pkg-name:focus, .pkg-price:focus, .pkg-qty:focus{outline:none;border-color:var(--gold);background:var(--card);}
   .pkg-qty{
-    width:42px;text-align:center;font-family:'Inter',sans-serif;font-size:12px;
-    border:1px solid var(--line);border-radius:6px;padding:3px 4px;background:var(--card);color:var(--ink);
+    grid-area:qty;width:100%;min-width:0;text-align:center;padding:3px 2px;
+    border:1px solid var(--line);background:var(--card);
+    -moz-appearance:textfield;appearance:textfield;
   }
-  .pkg-qty:focus{outline:none;border-color:var(--gold);}
-  .pkg-calc .x-sign{color:var(--ink-soft);}
+  .pkg-qty::-webkit-outer-spin-button,
+  .pkg-qty::-webkit-inner-spin-button{
+    -webkit-appearance:none;
+    margin:0;
+  }
+  .pkg-total-row{grid-area:total;font-size:12px;color:var(--ink-soft);margin-top:1px;}
   .pkg-total-value{font-weight:700;color:var(--ink);}
   .add-btn.small{font-size:11px;padding:5px 11px;margin-top:2px;}
   .pkg-brosur{grid-area:brosur;display:flex;align-items:center;gap:8px;margin-top:4px;flex-wrap:wrap;}
@@ -1310,15 +1314,9 @@ function renderPkgRow(p){
       <button class="pkg-radio" data-pkgaction="select" title="Pilih paket ini">${p.chosen ? '✓' : ''}</button>
       <input type="text" class="pkg-name" value="${escapeAttr(p.name)}" data-pkgfield="name">
       <input type="text" class="pkg-price" value="${p.price ? formatRupiahInput(p.price) : ''}" placeholder="Rp 0" data-pkgfield="price">
+      <input type="number" min="1" class="pkg-qty" value="${p.qty||1}" data-pkgfield="qty" title="Qty">
       <button class="pkg-del" data-pkgaction="del">✕</button>
-      <div class="pkg-calc">
-        <span>Qty</span>
-        <input type="number" min="1" class="pkg-qty" value="${p.qty||1}" data-pkgfield="qty">
-        <span class="x-sign">×</span>
-        <span>satuan</span>
-        <span class="x-sign">=</span>
-        <span>Total: <span class="pkg-total-value">${formatRp(pkgTotal(p))}</span></span>
-      </div>
+      <div class="pkg-total-row">Total: <span class="pkg-total-value">${formatRp(pkgTotal(p))}</span></div>
       <textarea class="pkg-includes" placeholder="Termasuk..." data-pkgfield="includes">${escapeHtml(p.includes||'')}</textarea>
       ${brosurAreaHtml(p)}
     </div>
