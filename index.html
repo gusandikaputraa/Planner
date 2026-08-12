@@ -147,6 +147,8 @@
   }
   .save-btn-manual:hover{background:var(--gold);color:#fff;}
   .save-btn-manual.is-saved{border-color:var(--sage);color:#3F6B54;background:var(--sage-soft);}
+  .save-btn-manual:disabled{opacity:0.55;cursor:not-allowed;}
+  .save-btn-manual:disabled:hover{background:var(--card);color:var(--gold);}
 
   main{
     max-width:1040px;
@@ -633,7 +635,7 @@
     <button data-view="guests">Tamu</button>
   </nav>
   <div class="save-manual-row">
-    <button class="save-btn-manual" id="manualSaveBtn">💾 Simpan Data</button>
+    <button class="save-btn-manual" id="manualSaveBtn" disabled>⏳ Memuat...</button>
   </div>
 </div>
 
@@ -972,6 +974,7 @@ let state = {
 };
 
 let isInitialLoad = true;
+let firebaseReady = false; // true setelah data pertama kali selesai dimuat dari Firebase
 let saveTimer = null;
 let lastSavedSnapshot = null;
 let hasPendingChanges = false;
@@ -984,6 +987,7 @@ function showSync(){
 }
 
 function scheduleSave(){
+  if(!firebaseReady) return; // jangan simpan apa pun sebelum data awal selesai dimuat
   hasPendingChanges = true;
   clearTimeout(saveTimer);
   saveTimer = setTimeout(saveToFirebase, IDLE_SAVE_DELAY);
@@ -1016,6 +1020,7 @@ function stableStringify(obj){
 }
 
 async function saveToFirebase(){
+  if(!firebaseReady) return; // jangan pernah menimpa data sebelum load awal selesai
   showSync();
   try {
     lastSavedSnapshot = stableStringify(state);
@@ -1026,6 +1031,10 @@ async function saveToFirebase(){
 
 document.getElementById('manualSaveBtn').addEventListener('click', async ()=>{
   const btn = document.getElementById('manualSaveBtn');
+  if(!firebaseReady){
+    alert('Data masih dimuat, tunggu sebentar sebelum menyimpan.');
+    return;
+  }
   const original = btn.textContent;
   clearTimeout(saveTimer);
   btn.disabled = true;
@@ -1052,6 +1061,7 @@ onValue(dataRef, (snapshot) => {
     // supaya form yang sedang diketik tidak kehilangan fokus/kursor.
     if(lastSavedSnapshot !== null && stableStringify(data) === lastSavedSnapshot){
       isInitialLoad = false;
+      markFirebaseReady();
       return;
     }
 
@@ -1104,7 +1114,15 @@ onValue(dataRef, (snapshot) => {
     updateUIFromState();
   }
   isInitialLoad = false;
+  markFirebaseReady();
 });
+
+function markFirebaseReady(){
+  if(firebaseReady) return;
+  firebaseReady = true;
+  const btn = document.getElementById('manualSaveBtn');
+  if(btn){ btn.disabled = false; btn.textContent = '💾 Simpan Data'; }
+}
 
 function updateUIFromState(){
   document.getElementById('weddingDate').value = state.weddingDate || '';
