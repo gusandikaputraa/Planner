@@ -512,6 +512,35 @@
     align-items:flex-start;justify-content:center;padding:40px 16px;overflow-y:auto;z-index:200;
   }
   .modal-overlay.show{display:flex;}
+
+  /* ---------- payment tracker ---------- */
+  .payment-card{
+    background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+    padding:16px 18px;margin-bottom:14px;box-shadow:var(--shadow);
+  }
+  .payment-card-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap;}
+  .payment-vendor-name{font-family:'Fraunces',serif;font-size:17px;font-weight:500;}
+  .payment-status-pill{font-size:11px;font-weight:600;padding:4px 11px;border-radius:12px;white-space:nowrap;}
+  .payment-status-belum{background:#F3E4E2;color:var(--danger);}
+  .payment-status-dp{background:var(--gold-soft);color:#8C6E1F;}
+  .payment-status-lunas{background:var(--sage-soft);color:#3F6B54;}
+  .payment-amounts{display:flex;gap:22px;flex-wrap:wrap;margin-top:12px;}
+  .payment-amounts .amt-label{font-size:10px;text-transform:uppercase;letter-spacing:0.8px;color:var(--ink-soft);margin-bottom:2px;}
+  .payment-amounts .amt-value{font-family:'Fraunces',serif;font-size:16px;}
+  .payment-toggle-btn{
+    background:none;border:none;color:var(--gold);font-size:12px;font-weight:600;
+    cursor:pointer;margin-top:12px;padding:0;font-family:'Inter',sans-serif;
+  }
+  .payment-history{margin-top:10px;border-top:1px solid var(--line);padding-top:12px;display:none;}
+  .payment-history.open{display:block;}
+  .payment-history-row{
+    display:flex;justify-content:space-between;align-items:center;gap:10px;
+    padding:8px 0;border-bottom:1px dashed var(--line);font-size:12.5px;color:var(--ink-soft);
+  }
+  .payment-history-row:last-child{border-bottom:none;}
+  .payment-history-row b{color:var(--ink);font-weight:600;}
+  .payment-cat-heading{font-family:'Fraunces',serif;font-size:15px;font-weight:500;margin:22px 0 10px;color:var(--ink-soft);}
+  .payment-cat-heading:first-child{margin-top:0;}
   .modal-card{
     background:var(--card);border-radius:18px;max-width:480px;width:100%;
     padding:28px 26px 22px;box-shadow:var(--shadow);position:relative;
@@ -578,6 +607,7 @@
 <nav class="tabs">
   <button data-view="dashboard" class="active">Ringkasan</button>
   <button data-view="vendor">Vendor</button>
+  <button data-view="payments">Pembayaran</button>
   <button data-view="checklist">Checklist</button>
   <button data-view="guests">Tamu</button>
 </nav>
@@ -609,6 +639,14 @@
         <div class="value" id="dbChecklist">0 / 0</div>
         <div class="progress-track"><div class="progress-fill" id="dbChecklistBar" style="width:0%"></div></div>
       </div>
+      <div class="card">
+        <div class="label">Total Terbayar</div>
+        <div class="value" style="color:var(--sage);" id="dbPaid">Rp 0</div>
+      </div>
+      <div class="card">
+        <div class="label">Sisa Harus Dibayar</div>
+        <div class="value" style="color:var(--danger);" id="dbOutstanding">Rp 0</div>
+      </div>
     </div>
     <p class="section-title" style="font-size:17px;">Biaya per Kategori Vendor</p>
     <p class="section-sub">Dihitung dari vendor berstatus "Deal" atau yang ditandai dipilih di setiap kategori.</p>
@@ -639,6 +677,12 @@
     <div class="hidden-cats-bar" id="hiddenCatsBar"></div>
     <div id="vendorCategories"></div>
     <button class="add-btn ghost" id="addCategoryBtn" style="margin-top:6px;">+ Tambah kategori baru</button>
+  </section>
+
+  <section class="view" id="view-payments">
+    <p class="section-title">Pembayaran Vendor</p>
+    <p class="section-sub">Tracking pembayaran untuk semua vendor yang sudah ditandai "Dipilih", dikelompokkan per kategori.</p>
+    <div id="paymentsList"></div>
   </section>
 
   <section class="view" id="view-checklist">
@@ -765,6 +809,35 @@
     <div class="modal-footer">
       <button class="add-btn ghost" id="guestModalCancel">Batal</button>
       <button class="add-btn" id="guestModalSubmit">✓ Tambah Data</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="paymentModalOverlay">
+  <div class="modal-card">
+    <button class="modal-close" id="paymentModalClose">✕</button>
+    <div style="text-align:center;">
+      <span class="modal-badge">+ CATAT PEMBAYARAN</span>
+    </div>
+    <p class="modal-title">Tambah Pembayaran</p>
+    <p class="modal-sub">Untuk vendor: <b id="paymentModalVendorName"></b></p>
+    <div class="modal-body">
+      <div class="mfield">
+        <label>Jumlah Pembayaran <span class="req">*</span></label>
+        <input type="text" inputmode="numeric" id="pAmount" placeholder="Rp 0">
+      </div>
+      <div class="mfield">
+        <label>Tanggal</label>
+        <input type="date" id="pDate">
+      </div>
+      <div class="mfield">
+        <label>Catatan</label>
+        <input type="text" id="pNote" placeholder="mis. DP, Termin 2, Pelunasan H-7">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="add-btn ghost" id="paymentModalCancel">Batal</button>
+      <button class="add-btn" id="paymentModalSubmit">✓ Simpan Pembayaran</button>
     </div>
   </div>
 </div>
@@ -948,6 +1021,7 @@ onValue(dataRef, (snapshot) => {
     Object.keys(state.vendors).forEach(cat=>{
       state.vendors[cat].forEach(v=>{
         if(!v.packages) v.packages = [{id:uid(), name:'Paket 1', price:0, qty:1, includes:'', chosen:true, brosur:null}];
+        if(!v.payments) v.payments = [];
         v.packages.forEach(p=>{
           if(p.brosur === undefined) p.brosur = null;
           if(!p.qty || p.qty < 1) p.qty = 1;
@@ -993,6 +1067,7 @@ function updateUIFromState(){
   renderCountdown();
   renderDashboard();
   renderVendors();
+  renderPayments();
   renderChecklist();
   renderGuests();
 }
@@ -1076,6 +1151,43 @@ function categorySpent(cat){
   return dealVendor ? vendorPrice(dealVendor) : 0;
 }
 
+/* ---------------- Payment tracker ---------------- */
+const PAYMENT_STATUS_LABELS = {belum:'Belum Bayar', dp:'DP / Sebagian', lunas:'Lunas'};
+
+function vendorPaid(v){
+  return (v.payments||[]).reduce((s,p)=> s + (Number(p.amount)||0), 0);
+}
+function vendorRemaining(v){
+  return Math.max(0, vendorPrice(v) - vendorPaid(v));
+}
+function vendorPaymentStatus(v){
+  const total = vendorPrice(v);
+  const paid = vendorPaid(v);
+  if(paid<=0) return 'belum';
+  if(total>0 && paid >= total) return 'lunas';
+  return 'dp';
+}
+function getAllChosenVendors(){
+  const out = [];
+  Object.keys(state.vendors).forEach(cat=>{
+    (state.vendors[cat]||[]).forEach(v=>{ if(v.chosen) out.push({cat, v}); });
+  });
+  return out;
+}
+function findVendorById(id){
+  for(const cat of Object.keys(state.vendors)){
+    const v = (state.vendors[cat]||[]).find(x=>x.id===id);
+    if(v) return v;
+  }
+  return null;
+}
+function totalPaidAll(){
+  return getAllChosenVendors().reduce((s,{v})=> s+vendorPaid(v), 0);
+}
+function totalOutstandingAll(){
+  return getAllChosenVendors().reduce((s,{v})=> s+vendorRemaining(v), 0);
+}
+
 function renderDashboard(){
   document.getElementById('dbBudget').textContent = formatRp(state.totalBudget);
   let totalSpent = 0;
@@ -1091,6 +1203,8 @@ function renderDashboard(){
   const total = state.checklist.length;
   document.getElementById('dbChecklist').textContent = `${done} / ${total}`;
   document.getElementById('dbChecklistBar').style.width = total ? (done/total*100)+'%' : '0%';
+  document.getElementById('dbPaid').textContent = formatRp(totalPaidAll());
+  document.getElementById('dbOutstanding').textContent = formatRp(totalOutstandingAll());
 
   const barsEl = document.getElementById('categoryBars');
   barsEl.innerHTML = '';
@@ -1584,7 +1698,7 @@ document.getElementById('vendorCategories').addEventListener('click', e=>{
   if(!addBtn) return;
   const cat = addBtn.dataset.cat;
   if(!state.vendors[cat]) return;
-  state.vendors[cat].push({id:uid(), name:'', contactLinks:[], notes:'', rating:0, status:'pertimbangan', chosen:false,
+  state.vendors[cat].push({id:uid(), name:'', contactLinks:[], notes:'', rating:0, status:'pertimbangan', chosen:false, payments:[],
     packages:[{id:uid(), name:'Paket 1', price:0, qty:1, includes:'', chosen:true, brosur:null}]});
   scheduleSave(); renderVendors();
 });
@@ -1900,6 +2014,126 @@ document.getElementById('addGroupBtn').addEventListener('click', ()=>{
   state.guestGroups.push(name);
   inp.value = '';
   scheduleSave(); renderGroupList(); renderGuests();
+});
+
+/* ---------------- Payments tab rendering ---------------- */
+function renderPayments(){
+  const wrap = document.getElementById('paymentsList');
+  const chosen = getAllChosenVendors();
+  if(chosen.length === 0){
+    wrap.innerHTML = '<p class="section-sub">Belum ada vendor yang ditandai "Dipilih". Pilih vendor dulu di tab Vendor untuk mulai mencatat pembayaran.</p>';
+    return;
+  }
+  const byCat = {};
+  chosen.forEach(({cat,v})=>{ if(!byCat[cat]) byCat[cat]=[]; byCat[cat].push(v); });
+
+  let html = '';
+  Object.keys(byCat).forEach(cat=>{
+    html += `<p class="payment-cat-heading">${escapeHtml(cat)}</p>`;
+    byCat[cat].forEach(v=>{
+      const total = vendorPrice(v);
+      const paid = vendorPaid(v);
+      const remaining = vendorRemaining(v);
+      const pct = total>0 ? Math.min(100,(paid/total)*100) : 0;
+      const status = vendorPaymentStatus(v);
+      const payments = (v.payments||[]).slice().sort((a,b)=> new Date(b.date||0) - new Date(a.date||0));
+      html += `
+        <div class="payment-card" data-vendor="${v.id}">
+          <div class="payment-card-top">
+            <div class="payment-vendor-name">${escapeHtml(v.name || 'Vendor tanpa nama')}</div>
+            <span class="payment-status-pill payment-status-${status}">${PAYMENT_STATUS_LABELS[status]}</span>
+          </div>
+          <div class="progress-track"><div class="progress-fill ${remaining>0 && status!=='belum' ? '' : ''}" style="width:${pct}%"></div></div>
+          <div class="payment-amounts">
+            <div><div class="amt-label">Total Harga</div><div class="amt-value">${formatRp(total)}</div></div>
+            <div><div class="amt-label">Terbayar</div><div class="amt-value" style="color:var(--sage);">${formatRp(paid)}</div></div>
+            <div><div class="amt-label">Sisa</div><div class="amt-value" style="color:${remaining>0?'var(--danger)':'var(--ink)'};">${formatRp(remaining)}</div></div>
+          </div>
+          <button class="payment-toggle-btn" data-action="toggle-history" type="button">Lihat riwayat pembayaran (${payments.length}) ▾</button>
+          <div class="payment-history" id="hist-${v.id}">
+            ${payments.length ? payments.map(p=>`
+              <div class="payment-history-row" data-payment="${p.id}">
+                <span>${p.date ? new Date(p.date).toLocaleDateString('id-ID',{day:'numeric',month:'short',year:'numeric'}) : 'Tanpa tanggal'}${p.note ? ' · '+escapeHtml(p.note) : ''}</span>
+                <span style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
+                  <b>${formatRp(p.amount)}</b>
+                  <button class="icon-btn danger" data-action="del-payment" title="Hapus" type="button">🗑</button>
+                </span>
+              </div>
+            `).join('') : '<p class="section-sub" style="margin:0;">Belum ada pembayaran tercatat.</p>'}
+            <button class="add-btn ghost small" data-action="add-payment" type="button" style="margin-top:10px;">+ Tambah Pembayaran</button>
+          </div>
+        </div>
+      `;
+    });
+  });
+  wrap.innerHTML = html;
+
+  wrap.querySelectorAll('[data-action="toggle-history"]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      btn.closest('.payment-card').querySelector('.payment-history').classList.toggle('open');
+    });
+  });
+  wrap.querySelectorAll('[data-action="add-payment"]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      openPaymentModal(btn.closest('.payment-card').dataset.vendor);
+    });
+  });
+  wrap.querySelectorAll('[data-action="del-payment"]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const card = btn.closest('.payment-card');
+      const vendorId = card.dataset.vendor;
+      const paymentId = btn.closest('[data-payment]').dataset.payment;
+      const v = findVendorById(vendorId);
+      if(v && confirm('Hapus catatan pembayaran ini?')){
+        v.payments = (v.payments||[]).filter(p=>p.id!==paymentId);
+        scheduleSave(); renderPayments(); renderDashboard();
+      }
+    });
+  });
+}
+
+let payingVendorId = null;
+
+function openPaymentModal(vendorId){
+  payingVendorId = vendorId;
+  const v = findVendorById(vendorId);
+  document.getElementById('paymentModalVendorName').textContent = v ? v.name : '';
+  const amountInput = document.getElementById('pAmount');
+  amountInput.value = '';
+  amountInput.dataset.raw = '';
+  document.getElementById('pDate').value = new Date().toISOString().slice(0,10);
+  document.getElementById('pNote').value = '';
+  document.getElementById('paymentModalOverlay').classList.add('show');
+  amountInput.focus();
+}
+function closePaymentModal(){
+  document.getElementById('paymentModalOverlay').classList.remove('show');
+  payingVendorId = null;
+}
+document.getElementById('paymentModalClose').addEventListener('click', closePaymentModal);
+document.getElementById('paymentModalCancel').addEventListener('click', closePaymentModal);
+document.getElementById('paymentModalOverlay').addEventListener('click', e=>{ if(e.target.id==='paymentModalOverlay') closePaymentModal(); });
+
+document.getElementById('pAmount').addEventListener('input', e=>{
+  const digits = e.target.value.replace(/\D/g,'');
+  e.target.dataset.raw = digits;
+  e.target.value = digits ? formatRupiahInput(Number(digits)) : '';
+});
+
+document.getElementById('paymentModalSubmit').addEventListener('click', ()=>{
+  const v = findVendorById(payingVendorId);
+  if(!v){ closePaymentModal(); return; }
+  const amountInput = document.getElementById('pAmount');
+  const amount = Number(amountInput.dataset.raw || amountInput.value.replace(/\D/g,'')) || 0;
+  if(amount <= 0){ alert('Jumlah pembayaran wajib diisi.'); return; }
+  const date = document.getElementById('pDate').value;
+  const note = document.getElementById('pNote').value.trim();
+  if(!v.payments) v.payments = [];
+  v.payments.push({id:uid(), amount, date, note});
+  scheduleSave();
+  closePaymentModal();
+  renderPayments();
+  renderDashboard();
 });
 </script>
 </body>
