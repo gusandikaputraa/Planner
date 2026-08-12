@@ -1105,12 +1105,29 @@ function renderDashboard(){
 
 function autoGrow(el){
   el.style.height = 'auto';
-  el.style.height = el.scrollHeight + 'px';
+  el.style.height = (el.scrollHeight + 2) + 'px';
 }
 document.addEventListener('input', e=>{
   if(e.target.matches && e.target.matches('.pkg-includes, .vfield textarea')){
     autoGrow(e.target);
   }
+});
+
+function autoGrowAll(){
+  document.querySelectorAll('.pkg-includes, .vfield textarea').forEach(autoGrow);
+}
+
+// Font web (Fraunces/Inter) dimuat async - ukuran teks bisa berubah sedikit
+// setelah font aslinya siap, jadi hitung ulang tinggi kolom "keterangan" supaya
+// tidak ada teks yang kepotong.
+if(document.fonts && document.fonts.ready){
+  document.fonts.ready.then(autoGrowAll).catch(()=>{});
+}
+
+let resizeGrowTimer = null;
+window.addEventListener('resize', ()=>{
+  clearTimeout(resizeGrowTimer);
+  resizeGrowTimer = setTimeout(autoGrowAll, 150);
 });
 
 let vendorSearchTerm = '';
