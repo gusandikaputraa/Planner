@@ -1201,6 +1201,7 @@ function renderVendors(){
       <div class="cat-head">
         <h3>${escapeHtml(cat)} <span class="count">${fullList.length}</span></h3>
         <div class="cat-head-actions">
+          <button class="cat-hide-btn" data-cat-action="rename" data-cat="${escapeAttr(cat)}" type="button">✎ Ganti Nama</button>
           <button class="cat-hide-btn" data-cat-action="hide" data-cat="${escapeAttr(cat)}" type="button">🙈 Sembunyikan</button>
           <button class="add-btn" data-cat="${escapeAttr(cat)}">+ Vendor</button>
         </div>
@@ -1564,6 +1565,11 @@ function escapeHtml(s){ return (s||'').replace(/[&<>]/g, c=>({'&':'&amp;','<':'&
 function escapeAttr(s){ return escapeHtml(s).replace(/"/g,'&quot;'); }
 
 document.getElementById('vendorCategories').addEventListener('click', e=>{
+  const renameBtn = e.target.closest('button[data-cat-action="rename"]');
+  if(renameBtn){
+    renameCategory(renameBtn.dataset.cat);
+    return;
+  }
   const hideBtn = e.target.closest('button[data-cat-action="hide"]');
   if(hideBtn){
     const cat = hideBtn.dataset.cat;
@@ -1580,6 +1586,32 @@ document.getElementById('vendorCategories').addEventListener('click', e=>{
     packages:[{id:uid(), name:'Paket 1', price:0, qty:1, includes:'', chosen:true, brosur:null}]});
   scheduleSave(); renderVendors();
 });
+
+function renameCategory(oldName){
+  const input = prompt('Ganti nama kategori:', oldName);
+  if(input === null) return;
+  const clean = input.trim();
+  if(!clean || clean === oldName) return;
+  if(state.vendors[clean]){
+    alert('Kategori dengan nama itu sudah ada.');
+    return;
+  }
+  // Pindahkan daftar vendor ke key kategori baru, sambil menjaga urutan kategori lainnya.
+  const reordered = {};
+  Object.keys(state.vendors).forEach(k=>{
+    if(k === oldName) reordered[clean] = state.vendors[k];
+    else reordered[k] = state.vendors[k];
+  });
+  state.vendors = reordered;
+
+  if(state.hiddenCategories){
+    const idx = state.hiddenCategories.indexOf(oldName);
+    if(idx > -1) state.hiddenCategories[idx] = clean;
+  }
+  if(vendorCategoryFilterVal === oldName) vendorCategoryFilterVal = clean;
+
+  scheduleSave(); renderVendors(); renderDashboard();
+}
 
 document.getElementById('hiddenCatsBar').addEventListener('click', e=>{
   const btn = e.target.closest('button[data-cat-action="show"]');
