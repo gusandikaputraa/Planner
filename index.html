@@ -128,6 +128,26 @@
     color:var(--paper);
   }
 
+  .tabs-sticky-wrap{
+    position:sticky;
+    top:0;
+    z-index:150;
+    background:var(--paper);
+    padding-top:10px;
+    box-shadow:0 6px 14px -10px rgba(27,46,40,0.25);
+  }
+  .save-manual-row{
+    display:flex;justify-content:center;padding-bottom:12px;
+  }
+  .save-btn-manual{
+    font-family:'Inter',sans-serif;font-size:12px;font-weight:700;letter-spacing:0.3px;
+    background:var(--card);border:1.5px solid var(--gold);color:var(--gold);
+    padding:7px 16px;border-radius:20px;cursor:pointer;
+    display:inline-flex;align-items:center;gap:6px;transition:all .15s ease;
+  }
+  .save-btn-manual:hover{background:var(--gold);color:#fff;}
+  .save-btn-manual.is-saved{border-color:var(--sage);color:#3F6B54;background:var(--sage-soft);}
+
   main{
     max-width:1040px;
     margin:0 auto;
@@ -604,13 +624,18 @@
   </div>
 </header>
 
-<nav class="tabs">
-  <button data-view="dashboard" class="active">Ringkasan</button>
-  <button data-view="vendor">Vendor</button>
-  <button data-view="payments">Pembayaran</button>
-  <button data-view="checklist">Checklist</button>
-  <button data-view="guests">Tamu</button>
-</nav>
+<div class="tabs-sticky-wrap">
+  <nav class="tabs">
+    <button data-view="dashboard" class="active">Ringkasan</button>
+    <button data-view="vendor">Vendor</button>
+    <button data-view="payments">Pembayaran</button>
+    <button data-view="checklist">Checklist</button>
+    <button data-view="guests">Tamu</button>
+  </nav>
+  <div class="save-manual-row">
+    <button class="save-btn-manual" id="manualSaveBtn">💾 Simpan Data</button>
+  </div>
+</div>
 
 <main>
   <section class="view active" id="view-dashboard">
@@ -998,6 +1023,26 @@ async function saveToFirebase(){
     await set(dataRef, state);
   } catch(e) { console.error("Gagal sinkron ke Firebase", e); hasPendingChanges = true; }
 }
+
+document.getElementById('manualSaveBtn').addEventListener('click', async ()=>{
+  const btn = document.getElementById('manualSaveBtn');
+  const original = btn.textContent;
+  clearTimeout(saveTimer);
+  btn.disabled = true;
+  btn.textContent = '⏳ Menyimpan...';
+  try {
+    await saveToFirebase();
+    btn.textContent = '✓ Tersimpan';
+    btn.classList.add('is-saved');
+  } catch(e){
+    btn.textContent = '✕ Gagal, coba lagi';
+  }
+  setTimeout(()=>{
+    btn.textContent = original;
+    btn.classList.remove('is-saved');
+    btn.disabled = false;
+  }, 1800);
+});
 
 onValue(dataRef, (snapshot) => {
   const data = snapshot.val();
