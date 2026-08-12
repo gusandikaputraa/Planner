@@ -210,7 +210,28 @@
     margin-bottom:12px;
     padding-bottom:8px;
     border-bottom:1px solid var(--line);
+    gap:10px;flex-wrap:wrap;
   }
+  .cat-head-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+  .cat-hide-btn{
+    background:none;border:1px solid var(--line);color:var(--ink-soft);font-size:11px;
+    padding:6px 12px;border-radius:14px;cursor:pointer;display:flex;align-items:center;gap:4px;
+  }
+  .cat-hide-btn:hover{color:var(--ink);border-color:var(--ink);}
+  .hidden-cats-bar{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px;}
+  .hidden-cats-bar:empty{display:none;margin:0;}
+  .hidden-cat-chip{
+    display:flex;align-items:center;gap:6px;background:var(--sage-soft);color:var(--ink-soft);
+    font-size:11.5px;font-weight:600;padding:6px 12px;border-radius:16px;
+  }
+  .hidden-cat-chip button{background:none;border:none;color:var(--ink);cursor:pointer;font-size:11px;font-weight:700;text-decoration:underline;padding:0;}
+  .vendor-toolbar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px;align-items:center;}
+  .vendor-toolbar .search-wrap{flex:1;min-width:200px;}
+  .vendor-toolbar select{
+    font-family:'Inter',sans-serif;font-size:12.5px;border:1px solid var(--line);
+    background:var(--card);padding:8px 12px;border-radius:18px;color:var(--ink);cursor:pointer;
+  }
+  .vendor-empty-filtered{font-size:12.5px;color:var(--ink-soft);padding:14px;text-align:center;grid-column:1/-1;}
   .cat-head h3{
     font-family:'Fraunces',serif;
     font-weight:500;font-size:17px;margin:0;
@@ -265,7 +286,7 @@
   .pkg-row{
     display:grid;
     grid-template-columns:22px minmax(50px,1fr) auto 20px;
-    grid-template-areas: "radio name price del" "empty includes includes includes" "empty brosur brosur brosur";
+    grid-template-areas: "radio name price del" "empty calc calc calc" "empty includes includes includes" "empty brosur brosur brosur";
     align-items:center;
     gap:4px 6px;
     background:var(--paper);
@@ -302,6 +323,14 @@
     box-sizing:border-box;
   }
   .pkg-name:focus, .pkg-price:focus{outline:none;border-color:var(--line);background:var(--card);}
+  .pkg-calc{grid-area:calc;display:flex;align-items:center;gap:6px;font-size:11px;color:var(--ink-soft);margin-top:1px;flex-wrap:wrap;}
+  .pkg-qty{
+    width:42px;text-align:center;font-family:'Inter',sans-serif;font-size:12px;
+    border:1px solid var(--line);border-radius:6px;padding:3px 4px;background:var(--card);color:var(--ink);
+  }
+  .pkg-qty:focus{outline:none;border-color:var(--gold);}
+  .pkg-calc .x-sign{color:var(--ink-soft);}
+  .pkg-total-value{font-weight:700;color:var(--ink);}
   .add-btn.small{font-size:11px;padding:5px 11px;margin-top:2px;}
   .pkg-brosur{grid-area:brosur;display:flex;align-items:center;gap:8px;margin-top:4px;flex-wrap:wrap;}
   .brosur-thumb{width:40px;height:40px;object-fit:cover;border-radius:8px;border:1px solid var(--line);cursor:pointer;flex-shrink:0;}
@@ -314,6 +343,18 @@
   .brosur-view-card::before{display:none;}
   .brosur-view-card img{width:100%;max-height:82vh;object-fit:contain;border-radius:12px;box-shadow:var(--shadow);display:block;background:var(--card);}
   .brosur-view-card .modal-close{top:-14px;right:-14px;background:var(--card);box-shadow:var(--shadow);}
+  .contact-links{display:flex;flex-wrap:wrap;gap:6px;align-items:center;}
+  .contact-pill{display:flex;align-items:center;background:var(--paper);border:1px solid var(--line);border-radius:14px;overflow:hidden;}
+  .contact-pill-link{display:flex;align-items:center;gap:5px;font-size:11.5px;font-weight:600;color:var(--ink);text-decoration:none;padding:5px 6px 5px 10px;}
+  .contact-pill-link:hover{color:var(--gold);}
+  .contact-pill-icon{font-size:12px;}
+  .contact-pill-del{background:none;border:none;color:var(--ink-soft);cursor:pointer;font-size:10px;padding:5px 8px 5px 4px;line-height:1;}
+  .contact-pill-del:hover{color:var(--danger);}
+  .contact-add-btn{
+    font-family:'Inter',sans-serif;font-size:11.5px;font-weight:600;border:1px dashed var(--line);
+    background:transparent;color:var(--ink-soft);border-radius:14px;padding:6px 12px;cursor:pointer;
+  }
+  .contact-add-btn:hover{color:var(--ink);border-color:var(--ink);}
   .stars{display:flex;gap:2px;font-size:16px;cursor:pointer;color:var(--line);}
   .stars span.on{color:var(--gold);}
   .vcard-foot{display:flex;justify-content:space-between;align-items:center;margin-top:2px;}
@@ -573,6 +614,25 @@
   <section class="view" id="view-vendor">
     <p class="section-title">Perbandingan Vendor</p>
     <p class="section-sub">Tambahkan beberapa pilihan vendor per kategori, lalu bandingkan harga, rating, dan status. Tandai "Pilih" pada vendor yang sudah deal.</p>
+    <div class="vendor-toolbar">
+      <div class="search-wrap"><input type="text" id="vendorSearch" placeholder="Cari nama vendor, catatan, atau kontak..."></div>
+      <select id="vendorCategoryFilter"><option value="semua">Semua Kategori</option></select>
+      <select id="vendorStatusFilter">
+        <option value="semua">Semua Status</option>
+        <option value="pertimbangan">Pertimbangan</option>
+        <option value="dihubungi">Dihubungi</option>
+        <option value="deal">Deal</option>
+        <option value="ditolak">Ditolak</option>
+      </select>
+      <select id="vendorSortSelect">
+        <option value="default">Urutan Default</option>
+        <option value="price-asc">Harga Termurah</option>
+        <option value="price-desc">Harga Termahal</option>
+        <option value="rating-desc">Rating Tertinggi</option>
+        <option value="name-asc">Nama A-Z</option>
+      </select>
+    </div>
+    <div class="hidden-cats-bar" id="hiddenCatsBar"></div>
     <div id="vendorCategories"></div>
     <button class="add-btn ghost" id="addCategoryBtn" style="margin-top:6px;">+ Tambah kategori baru</button>
   </section>
@@ -730,6 +790,35 @@
   </div>
 </div>
 
+<div class="modal-overlay" id="contactLinkModalOverlay">
+  <div class="modal-card" style="max-width:400px;">
+    <button class="modal-close" id="contactLinkModalClose">✕</button>
+    <p class="modal-title">Tambah Link Kontak</p>
+    <p class="modal-sub">Pilih jenis kontak, lalu masukkan nomor atau link-nya.</p>
+    <div class="modal-body">
+      <div class="mfield">
+        <label>Jenis Kontak</label>
+        <select id="clType">
+          <option value="wa">WhatsApp</option>
+          <option value="ig">Instagram</option>
+          <option value="gdrive">Google Drive</option>
+          <option value="web">Website</option>
+          <option value="lainnya">Lainnya</option>
+        </select>
+      </div>
+      <div class="mfield">
+        <label id="clUrlLabel">Nomor WhatsApp</label>
+        <input type="text" id="clUrl" placeholder="08xxxxxxxxxx">
+        <div class="hint" id="clHint">Nomor otomatis diubah ke link WhatsApp (wa.me).</div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="add-btn ghost" id="contactLinkModalCancel">Batal</button>
+      <button class="add-btn" id="contactLinkModalSubmit">✓ Tambah Link</button>
+    </div>
+  </div>
+</div>
+
 <div id="syncIndicator" class="sync-status">Menyimpan...</div>
 <footer>Data tersimpan otomatis di Cloud Firebase.</footer>
 
@@ -776,7 +865,8 @@ let state = {
   vendors: {},
   checklist: [],
   guests: [],
-  guestGroups: []
+  guestGroups: [],
+  hiddenCategories: []
 };
 
 let isInitialLoad = true;
@@ -848,12 +938,32 @@ onValue(dataRef, (snapshot) => {
     if(!state.checklist) state.checklist = [];
     if(!state.guests) state.guests = [];
     if(!state.guestGroups || !state.guestGroups.length) state.guestGroups = [...DEFAULT_GUEST_GROUPS];
+    if(!state.hiddenCategories) state.hiddenCategories = [];
     
     // Migrasi data lama jika diperlukan
     Object.keys(state.vendors).forEach(cat=>{
       state.vendors[cat].forEach(v=>{
-        if(!v.packages) v.packages = [{id:uid(), name:'Paket 1', price:0, includes:'', chosen:true, brosur:null}];
-        v.packages.forEach(p=>{ if(p.brosur === undefined) p.brosur = null; });
+        if(!v.packages) v.packages = [{id:uid(), name:'Paket 1', price:0, qty:1, includes:'', chosen:true, brosur:null}];
+        v.packages.forEach(p=>{
+          if(p.brosur === undefined) p.brosur = null;
+          if(!p.qty || p.qty < 1) p.qty = 1;
+        });
+        if(!v.contactLinks){
+          v.contactLinks = [];
+          if(v.contact && v.contact.trim()){
+            const raw = v.contact.trim();
+            if(/^https?:\/\//i.test(raw)){
+              let type = 'lainnya';
+              if(/instagram\.com/i.test(raw)) type = 'ig';
+              else if(/drive\.google\.com/i.test(raw)) type = 'gdrive';
+              v.contactLinks.push({id:uid(), type, url:raw});
+            } else if(/^[\d+\-\s]+$/.test(raw) && raw.replace(/\D/g,'').length >= 8){
+              v.contactLinks.push({id:uid(), type:'wa', url: normalizeContactUrl('wa', raw)});
+            } else {
+              v.contactLinks.push({id:uid(), type:'lainnya', url: raw});
+            }
+          }
+        }
       });
     });
     state.guests.forEach(g=>{
@@ -867,6 +977,7 @@ onValue(dataRef, (snapshot) => {
     // Jalankan default jika database kosong
     DEFAULT_CATEGORIES.forEach(c => state.vendors[c] = []);
     state.guestGroups = [...DEFAULT_GUEST_GROUPS];
+    state.hiddenCategories = [];
     updateUIFromState();
   }
   isInitialLoad = false;
@@ -938,11 +1049,17 @@ totalBudgetInput.addEventListener('input', ()=>{
   scheduleSave();
 });
 
+function pkgTotal(p){
+  const price = Number(p.price)||0;
+  const qty = Math.max(1, Number(p.qty)||1);
+  return price * qty;
+}
+
 function vendorPrice(v){
   if(!v.packages || v.packages.length===0) return 0;
   const chosenPkgs = v.packages.filter(x=>x.chosen);
-  if(chosenPkgs.length === 0) return Number(v.packages[0].price)||0;
-  return chosenPkgs.reduce((sum,x)=> sum + (Number(x.price)||0), 0);
+  if(chosenPkgs.length === 0) return pkgTotal(v.packages[0]);
+  return chosenPkgs.reduce((sum,x)=> sum + pkgTotal(x), 0);
 }
 
 function categorySpent(cat){
@@ -996,30 +1113,113 @@ document.addEventListener('input', e=>{
   }
 });
 
+let vendorSearchTerm = '';
+let vendorCategoryFilterVal = 'semua';
+let vendorStatusFilterVal = 'semua';
+let vendorSortVal = 'default';
+
+function sortVendorList(list){
+  const arr = [...list];
+  switch(vendorSortVal){
+    case 'price-asc': arr.sort((a,b)=> vendorPrice(a) - vendorPrice(b)); break;
+    case 'price-desc': arr.sort((a,b)=> vendorPrice(b) - vendorPrice(a)); break;
+    case 'rating-desc': arr.sort((a,b)=> (b.rating||0) - (a.rating||0)); break;
+    case 'name-asc': arr.sort((a,b)=> (a.name||'').localeCompare(b.name||'')); break;
+  }
+  return arr;
+}
+
+function populateVendorCategoryFilter(allCats, hidden){
+  const sel = document.getElementById('vendorCategoryFilter');
+  const visibleCats = allCats.filter(c=>!hidden.includes(c));
+  const current = vendorCategoryFilterVal;
+  sel.innerHTML = '<option value="semua">Semua Kategori</option>' + visibleCats.map(c=>`<option value="${escapeAttr(c)}">${escapeHtml(c)}</option>`).join('');
+  if(current !== 'semua' && !visibleCats.includes(current)){
+    vendorCategoryFilterVal = 'semua';
+  }
+  sel.value = vendorCategoryFilterVal;
+}
+
+function renderHiddenCatsBar(hidden){
+  const bar = document.getElementById('hiddenCatsBar');
+  if(!hidden.length){ bar.innerHTML=''; return; }
+  bar.innerHTML = hidden.map(cat=>`
+    <span class="hidden-cat-chip">🙈 ${escapeHtml(cat)} <button data-cat-action="show" data-cat="${escapeAttr(cat)}" type="button">Tampilkan</button></span>
+  `).join('');
+}
+
 function renderVendors(){
   const wrap = document.getElementById('vendorCategories');
   wrap.innerHTML = '';
-  Object.keys(state.vendors).forEach(cat=>{
-    const list = state.vendors[cat];
+
+  const allCats = Object.keys(state.vendors);
+  const hidden = state.hiddenCategories || [];
+  populateVendorCategoryFilter(allCats, hidden);
+  renderHiddenCatsBar(hidden);
+
+  const term = vendorSearchTerm.trim().toLowerCase();
+
+  allCats.forEach(cat=>{
+    if(hidden.includes(cat)) return;
+    if(vendorCategoryFilterVal !== 'semua' && vendorCategoryFilterVal !== cat) return;
+
+    const fullList = state.vendors[cat];
+    let list = fullList.filter(v=>{
+      if(vendorStatusFilterVal !== 'semua' && (v.status||'pertimbangan') !== vendorStatusFilterVal) return false;
+      if(term){
+        const haystack = [v.name||'', v.notes||'', ...((v.contactLinks||[]).map(l=>l.url||''))].join(' ').toLowerCase();
+        if(!haystack.includes(term)) return false;
+      }
+      return true;
+    });
+    list = sortVendorList(list);
+
     const block = document.createElement('div');
     block.className = 'cat-block';
     block.innerHTML = `
       <div class="cat-head">
-        <h3>${cat} <span class="count">${list.length}</span></h3>
-        <button class="add-btn" data-cat="${cat}">+ Vendor</button>
+        <h3>${escapeHtml(cat)} <span class="count">${fullList.length}</span></h3>
+        <div class="cat-head-actions">
+          <button class="cat-hide-btn" data-cat-action="hide" data-cat="${escapeAttr(cat)}" type="button">🙈 Sembunyikan</button>
+          <button class="add-btn" data-cat="${escapeAttr(cat)}">+ Vendor</button>
+        </div>
       </div>
       <div class="vendor-grid"></div>
     `;
     wrap.appendChild(block);
     const grid = block.querySelector('.vendor-grid');
-    if(list.length === 0){
+    if(fullList.length === 0){
       grid.innerHTML = '<div class="empty-cat">Belum ada vendor. Klik "+ Vendor" untuk menambahkan.</div>';
+    } else if(list.length === 0){
+      grid.innerHTML = '<div class="vendor-empty-filtered">Tidak ada vendor yang cocok dengan pencarian/filter di kategori ini.</div>';
     } else {
       list.forEach(v => grid.appendChild(renderVendorCard(cat, v)));
     }
   });
+
+  if(!wrap.innerHTML){
+    wrap.innerHTML = '<p class="section-sub">Semua kategori sedang disembunyikan. Tampilkan kembali dari daftar di atas.</p>';
+  }
+
   wrap.querySelectorAll('.pkg-includes, .vfield textarea').forEach(autoGrow);
 }
+
+document.getElementById('vendorSearch').addEventListener('input', e=>{
+  vendorSearchTerm = e.target.value;
+  renderVendors();
+});
+document.getElementById('vendorCategoryFilter').addEventListener('change', e=>{
+  vendorCategoryFilterVal = e.target.value;
+  renderVendors();
+});
+document.getElementById('vendorStatusFilter').addEventListener('change', e=>{
+  vendorStatusFilterVal = e.target.value;
+  renderVendors();
+});
+document.getElementById('vendorSortSelect').addEventListener('change', e=>{
+  vendorSortVal = e.target.value;
+  renderVendors();
+});
 
 function renderVendorCard(cat, v){
   const el = document.createElement('div');
@@ -1029,7 +1229,12 @@ function renderVendorCard(cat, v){
       <input class="vname" value="${escapeAttr(v.name)}" placeholder="Nama vendor" data-field="name">
       <button class="del-x">✕</button>
     </div>
-    <div class="vfield"><label>Kontak</label><input type="text" value="${escapeAttr(v.contact||'')}" placeholder="No. HP / IG" data-field="contact"></div>
+    <div class="vfield"><label>Kontak</label>
+      <div class="contact-links">
+        ${(v.contactLinks||[]).map(link => contactLinkPill(link)).join('')}
+        <button class="contact-add-btn" data-action="addcontact" type="button">+ Link</button>
+      </div>
+    </div>
     <div class="vfield"><label>Paket pilihan <span class="pkg-count">${v.packages.length}</span></label>
       <div class="pkg-list">${v.packages.map(p => renderPkgRow(p)).join('')}</div>
       <button class="add-btn ghost small" data-action="addpkg">+ Tambah paket</button>
@@ -1045,7 +1250,6 @@ function renderVendorCard(cat, v){
   `;
 
   el.querySelector('[data-field="name"]').addEventListener('input', e=>{ v.name = e.target.value; scheduleSave(); });
-  el.querySelector('[data-field="contact"]').addEventListener('input', e=>{ v.contact = e.target.value; scheduleSave(); });
   el.querySelector('[data-field="notes"]').addEventListener('input', e=>{ v.notes = e.target.value; scheduleSave(); });
   el.querySelector('.del-x').addEventListener('click', ()=>{
     state.vendors[cat] = state.vendors[cat].filter(x=>x.id!==v.id);
@@ -1067,8 +1271,16 @@ function renderVendorCard(cat, v){
     scheduleSave(); renderVendors(); renderDashboard();
   });
   el.querySelector('[data-action="addpkg"]').addEventListener('click', ()=>{
-    v.packages.push({id:uid(), name:'Paket '+(v.packages.length+1), price:0, includes:'', chosen: v.packages.length===0, brosur:null});
+    v.packages.push({id:uid(), name:'Paket '+(v.packages.length+1), price:0, qty:1, includes:'', chosen: v.packages.length===0, brosur:null});
     scheduleSave(); renderVendors(); renderDashboard();
+  });
+  el.querySelector('[data-action="addcontact"]').addEventListener('click', ()=> openContactLinkModal(cat, v));
+  el.querySelectorAll('[data-action="delcontact"]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const linkId = btn.dataset.linkId;
+      v.contactLinks = (v.contactLinks||[]).filter(l=>l.id!==linkId);
+      scheduleSave(); renderVendors();
+    });
   });
 
   bindPkgEvents(el, v);
@@ -1082,6 +1294,14 @@ function renderPkgRow(p){
       <input type="text" class="pkg-name" value="${escapeAttr(p.name)}" data-pkgfield="name">
       <input type="text" class="pkg-price" value="${p.price ? formatRupiahInput(p.price) : ''}" placeholder="Rp 0" data-pkgfield="price">
       <button class="pkg-del" data-pkgaction="del">✕</button>
+      <div class="pkg-calc">
+        <span>Qty</span>
+        <input type="number" min="1" class="pkg-qty" value="${p.qty||1}" data-pkgfield="qty">
+        <span class="x-sign">×</span>
+        <span>satuan</span>
+        <span class="x-sign">=</span>
+        <span>Total: <span class="pkg-total-value">${formatRp(pkgTotal(p))}</span></span>
+      </div>
       <textarea class="pkg-includes" placeholder="Termasuk..." data-pkgfield="includes">${escapeHtml(p.includes||'')}</textarea>
       ${brosurAreaHtml(p)}
     </div>
@@ -1112,6 +1332,14 @@ function bindPkgEvents(el, v){
       const digits = e.target.value.replace(/\D/g,'');
       p.price = Number(digits)||0;
       e.target.value = p.price ? formatRupiahInput(p.price) : '';
+      const totalEl = row.querySelector('.pkg-total-value');
+      if(totalEl) totalEl.textContent = formatRp(pkgTotal(p));
+      scheduleSave(); renderDashboard();
+    });
+    row.querySelector('[data-pkgfield="qty"]').addEventListener('input', e=>{
+      p.qty = Math.max(1, Number(e.target.value)||1);
+      const totalEl = row.querySelector('.pkg-total-value');
+      if(totalEl) totalEl.textContent = formatRp(pkgTotal(p));
       scheduleSave(); renderDashboard();
     });
     row.querySelector('[data-pkgfield="includes"]').addEventListener('input', e=>{ p.includes = e.target.value; scheduleSave(); });
@@ -1212,17 +1440,137 @@ function openBrosurViewer(src, name){
 document.getElementById('brosurViewClose').addEventListener('click', ()=>document.getElementById('brosurViewOverlay').classList.remove('show'));
 document.getElementById('brosurViewOverlay').addEventListener('click', e=>{ if(e.target.id==='brosurViewOverlay') document.getElementById('brosurViewOverlay').classList.remove('show'); });
 
+/* ---- Kontak vendor sebagai link (WA, IG, GDrive, Website, Lainnya) ---- */
+const CONTACT_TYPES = {
+  wa: {label:'WhatsApp', icon:'💬'},
+  ig: {label:'Instagram', icon:'📷'},
+  gdrive: {label:'Google Drive', icon:'🗂️'},
+  web: {label:'Website', icon:'🔗'},
+  lainnya: {label:'Lainnya', icon:'🔗'}
+};
+
+function contactLinkPill(link){
+  const meta = CONTACT_TYPES[link.type] || CONTACT_TYPES.lainnya;
+  const url = link.url || '';
+  const isClickable = /^https?:\/\//i.test(url);
+  const inner = `<span class="contact-pill-icon">${meta.icon}</span><span class="contact-pill-text">${meta.label}</span>`;
+  const linkHtml = isClickable
+    ? `<a href="${escapeAttr(url)}" target="_blank" rel="noopener noreferrer" class="contact-pill-link" title="${escapeAttr(url)}">${inner}</a>`
+    : `<span class="contact-pill-link" title="${escapeAttr(url)}">${inner}</span>`;
+  return `<span class="contact-pill" data-link-id="${link.id}">
+    ${linkHtml}
+    <button class="contact-pill-del" data-action="delcontact" data-link-id="${link.id}" type="button" title="Hapus link">✕</button>
+  </span>`;
+}
+
+function normalizeContactUrl(type, raw){
+  const val = (raw||'').trim();
+  if(!val) return '';
+  if(type === 'wa'){
+    let digits = val.replace(/\D/g,'');
+    if(digits.startsWith('0')) digits = '62' + digits.slice(1);
+    else if(!digits.startsWith('62')) digits = '62' + digits;
+    return 'https://wa.me/' + digits;
+  }
+  if(type === 'ig'){
+    if(/^https?:\/\//i.test(val)) return val;
+    const handle = val.replace(/^@/, '');
+    return 'https://instagram.com/' + handle;
+  }
+  if(!/^https?:\/\//i.test(val)) return 'https://' + val;
+  return val;
+}
+
+let currentContactTarget = null;
+
+function updateContactHint(){
+  const type = document.getElementById('clType').value;
+  const label = document.getElementById('clUrlLabel');
+  const hint = document.getElementById('clHint');
+  const input = document.getElementById('clUrl');
+  if(type === 'wa'){
+    label.textContent = 'Nomor WhatsApp';
+    input.placeholder = '08xxxxxxxxxx';
+    hint.textContent = 'Nomor otomatis diubah ke link WhatsApp (wa.me).';
+  } else if(type === 'ig'){
+    label.textContent = 'Username / Link Instagram';
+    input.placeholder = '@namaakun atau https://instagram.com/namaakun';
+    hint.textContent = 'Username otomatis diubah ke link instagram.com.';
+  } else if(type === 'gdrive'){
+    label.textContent = 'Link Google Drive';
+    input.placeholder = 'https://drive.google.com/...';
+    hint.textContent = '';
+  } else if(type === 'web'){
+    label.textContent = 'Link Website';
+    input.placeholder = 'https://...';
+    hint.textContent = '';
+  } else {
+    label.textContent = 'Link';
+    input.placeholder = 'https://...';
+    hint.textContent = '';
+  }
+}
+
+function openContactLinkModal(cat, v){
+  currentContactTarget = {cat, vendorId: v.id};
+  document.getElementById('clType').value = 'wa';
+  document.getElementById('clUrl').value = '';
+  updateContactHint();
+  document.getElementById('contactLinkModalOverlay').classList.add('show');
+  document.getElementById('clUrl').focus();
+}
+
+function closeContactLinkModal(){
+  document.getElementById('contactLinkModalOverlay').classList.remove('show');
+  currentContactTarget = null;
+}
+
+document.getElementById('clType').addEventListener('change', updateContactHint);
+document.getElementById('contactLinkModalClose').addEventListener('click', closeContactLinkModal);
+document.getElementById('contactLinkModalCancel').addEventListener('click', closeContactLinkModal);
+document.getElementById('contactLinkModalOverlay').addEventListener('click', e=>{ if(e.target.id==='contactLinkModalOverlay') closeContactLinkModal(); });
+
+document.getElementById('contactLinkModalSubmit').addEventListener('click', ()=>{
+  if(!currentContactTarget) return;
+  const type = document.getElementById('clType').value;
+  const raw = document.getElementById('clUrl').value.trim();
+  if(!raw){ alert('Isi nomor atau link dulu ya.'); return; }
+  const url = normalizeContactUrl(type, raw);
+  const v = (state.vendors[currentContactTarget.cat]||[]).find(x=>x.id===currentContactTarget.vendorId);
+  if(!v){ closeContactLinkModal(); return; }
+  if(!v.contactLinks) v.contactLinks = [];
+  v.contactLinks.push({id: uid(), type, url});
+  scheduleSave(); closeContactLinkModal(); renderVendors();
+});
+
 
 
 function escapeHtml(s){ return (s||'').replace(/[&<>]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])); }
 function escapeAttr(s){ return escapeHtml(s).replace(/"/g,'&quot;'); }
 
 document.getElementById('vendorCategories').addEventListener('click', e=>{
-  const btn = e.target.closest('button[data-cat]');
+  const hideBtn = e.target.closest('button[data-cat-action="hide"]');
+  if(hideBtn){
+    const cat = hideBtn.dataset.cat;
+    if(!state.hiddenCategories) state.hiddenCategories = [];
+    if(!state.hiddenCategories.includes(cat)) state.hiddenCategories.push(cat);
+    scheduleSave(); renderVendors();
+    return;
+  }
+  const addBtn = e.target.closest('button[data-cat]:not([data-cat-action])');
+  if(!addBtn) return;
+  const cat = addBtn.dataset.cat;
+  if(!state.vendors[cat]) return;
+  state.vendors[cat].push({id:uid(), name:'', contactLinks:[], notes:'', rating:0, status:'pertimbangan', chosen:false,
+    packages:[{id:uid(), name:'Paket 1', price:0, qty:1, includes:'', chosen:true, brosur:null}]});
+  scheduleSave(); renderVendors();
+});
+
+document.getElementById('hiddenCatsBar').addEventListener('click', e=>{
+  const btn = e.target.closest('button[data-cat-action="show"]');
   if(!btn) return;
   const cat = btn.dataset.cat;
-  state.vendors[cat].push({id:uid(), name:'', contact:'', notes:'', rating:0, status:'pertimbangan', chosen:false,
-    packages:[{id:uid(), name:'Paket 1', price:0, includes:'', chosen:true, brosur:null}]});
+  state.hiddenCategories = (state.hiddenCategories||[]).filter(c=>c!==cat);
   scheduleSave(); renderVendors();
 });
 
