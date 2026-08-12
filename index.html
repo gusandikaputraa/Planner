@@ -1068,8 +1068,12 @@ function vendorPrice(v){
 
 function categorySpent(cat){
   const list = state.vendors[cat] || [];
-  const chosen = list.find(v=>v.chosen) || list.find(v=>v.status==='deal');
-  return chosen ? vendorPrice(chosen) : 0;
+  const chosenVendors = list.filter(v=>v.chosen);
+  if(chosenVendors.length){
+    return chosenVendors.reduce((sum,v)=> sum + vendorPrice(v), 0);
+  }
+  const dealVendor = list.find(v=>v.status==='deal');
+  return dealVendor ? vendorPrice(dealVendor) : 0;
 }
 
 function renderDashboard(){
@@ -1287,9 +1291,7 @@ function renderVendorCard(cat, v){
     scheduleSave(); renderDashboard();
   });
   el.querySelector('[data-action="choose"]').addEventListener('click', ()=>{
-    const willChoose = !v.chosen;
-    state.vendors[cat].forEach(x=>x.chosen=false);
-    v.chosen = willChoose;
+    v.chosen = !v.chosen;
     scheduleSave(); renderVendors(); renderDashboard();
   });
   el.querySelector('[data-action="addpkg"]').addEventListener('click', ()=>{
