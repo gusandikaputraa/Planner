@@ -1103,6 +1103,7 @@ document.getElementById('manualSaveBtn').addEventListener('click', async ()=>{
 
 onValue(dataRef, (snapshot) => {
   const data = snapshot.val();
+  let duplicateIdsFixed = false;
   if (data) {
     // Kalau data yang masuk persis sama dengan yang baru saja kita simpan sendiri,
     // ini cuma "gema" dari perubahan kita sendiri di Firebase. Lewati render ulang
@@ -1120,6 +1121,22 @@ onValue(dataRef, (snapshot) => {
     if(!state.guestGroups || !state.guestGroups.length) state.guestGroups = [...DEFAULT_GUEST_GROUPS];
     if(!state.hiddenCategories) state.hiddenCategories = [];
     if(!state.vendorSubGroups) state.vendorSubGroups = {};
+
+    // Perbaiki ID vendor yang mungkin kembar (peninggalan bug drag-reorder sebelumnya).
+    // Kalau dua vendor ternyata berbagi ID yang sama, yang kedua diberi ID baru yang unik
+    // supaya fitur seperti "+ Link" tidak lagi salah sasaran ke vendor lain.
+    (function fixDuplicateVendorIds(){
+      const seenIds = new Set();
+      Object.keys(state.vendors).forEach(cat=>{
+        (state.vendors[cat]||[]).forEach(v=>{
+          if(seenIds.has(v.id)){
+            v.id = uid();
+            duplicateIdsFixed = true;
+          }
+          seenIds.add(v.id);
+        });
+      });
+    })();
     
     // Migrasi data lama jika diperlukan
     Object.keys(state.vendors).forEach(cat=>{
@@ -1167,6 +1184,7 @@ onValue(dataRef, (snapshot) => {
   }
   isInitialLoad = false;
   markFirebaseReady();
+  if(duplicateIdsFixed) saveToFirebase();
 });
 
 function markFirebaseReady(){
@@ -1911,7 +1929,7 @@ function updateContactHint(){
 }
 
 function openContactLinkModal(cat, v){
-  currentContactTarget = {cat, vendorId: v.id};
+  currentContactTarget = {cat, vendorId: v.id, vendor: v};
   document.getElementById('clType').value = 'wa';
   document.getElementById('clUrl').value = '';
   updateContactHint();
@@ -1935,7 +1953,10 @@ document.getElementById('contactLinkModalSubmit').addEventListener('click', ()=>
   const raw = document.getElementById('clUrl').value.trim();
   if(!raw){ alert('Isi nomor atau link dulu ya.'); return; }
   const url = normalizeContactUrl(type, raw);
-  const v = (state.vendors[currentContactTarget.cat]||[]).find(x=>x.id===currentContactTarget.vendorId);
+  // Pakai langsung referensi objek vendor yang disimpan saat modal dibuka
+  // (bukan cari ulang lewat ID) supaya link tidak pernah salah nyantol ke
+  // vendor lain, meskipun ada ID vendor yang kebetulan kembar di data.
+  const v = currentContactTarget.vendor;
   if(!v){ closeContactLinkModal(); return; }
   if(!v.contactLinks) v.contactLinks = [];
   v.contactLinks.push({id: uid(), type, url});
