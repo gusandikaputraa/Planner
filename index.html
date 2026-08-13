@@ -72,6 +72,12 @@
     object-fit:contain;
     margin-left:14px;
   }
+  .tabs-row .save-btn-manual{
+    flex:none;
+    margin-right:14px;
+    padding:8px 14px;
+    font-size:12px;
+  }
   h1{
     font-family:'Fraunces',serif;
     font-weight:500;
@@ -155,6 +161,7 @@
     z-index:150;
     background:var(--paper);
     padding-top:10px;
+    padding-bottom:10px;
     box-shadow:0 6px 14px -10px rgba(27,46,40,0.25);
   }
   .save-manual-row{
@@ -699,9 +706,7 @@
       <button data-view="checklist">Checklist</button>
       <button data-view="guests">Tamu</button>
     </nav>
-  </div>
-  <div class="save-manual-row">
-    <button class="save-btn-manual" id="manualSaveBtn" disabled>⏳ Memuat...</button>
+    <button class="save-btn-manual" id="manualSaveBtn" disabled>⏳</button>
   </div>
 </div>
 
@@ -1128,13 +1133,13 @@ document.getElementById('manualSaveBtn').addEventListener('click', async ()=>{
   const original = btn.textContent;
   clearTimeout(saveTimer);
   btn.disabled = true;
-  btn.textContent = '⏳ Menyimpan...';
+  btn.textContent = '⏳ Simpan...';
   try {
     await saveToFirebase();
     btn.textContent = '✓ Tersimpan';
     btn.classList.add('is-saved');
   } catch(e){
-    btn.textContent = '✕ Gagal, coba lagi';
+    btn.textContent = '✕ Gagal';
   }
   setTimeout(()=>{
     btn.textContent = original;
@@ -1233,7 +1238,7 @@ function markFirebaseReady(){
   if(firebaseReady) return;
   firebaseReady = true;
   const btn = document.getElementById('manualSaveBtn');
-  if(btn){ btn.disabled = false; btn.textContent = '💾 Simpan Data'; }
+  if(btn){ btn.disabled = false; btn.textContent = '💾 SIMPAN'; }
 }
 
 function updateUIFromState(){
