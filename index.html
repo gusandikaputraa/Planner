@@ -1562,9 +1562,17 @@ function reorderVendorsInCategory(cat, subsetIdsInNewOrder){
   if(!arr) return;
   const slotIndexes = [];
   arr.forEach((v,i)=>{ if(subsetIdsInNewOrder.includes(v.id)) slotIndexes.push(i); });
-  subsetIdsInNewOrder.forEach((id, i)=>{
+  // Ambil snapshot semua vendor object dulu SEBELUM array diubah,
+  // supaya pencarian tidak dilakukan di atas array yang sudah ditimpa (mencegah data dobel/hilang).
+  const vendorById = {};
+  subsetIdsInNewOrder.forEach(id=>{
     const vendor = arr.find(v=>v.id===id);
-    if(vendor && slotIndexes[i] !== undefined) arr[slotIndexes[i]] = vendor;
+    if(vendor) vendorById[id] = vendor;
+  });
+  subsetIdsInNewOrder.forEach((id, i)=>{
+    if(vendorById[id] && slotIndexes[i] !== undefined){
+      arr[slotIndexes[i]] = vendorById[id];
+    }
   });
 }
 
