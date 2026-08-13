@@ -275,6 +275,27 @@
     grid-template-columns:repeat(auto-fill,minmax(260px,1fr));
     gap:14px;
   }
+  .vendor-grid.collapsed{display:none;}
+  .subgroup-block{margin-bottom:20px;}
+  .subgroup-head{margin:16px 0 10px;}
+  .subgroup-block:first-child .subgroup-head{margin-top:4px;}
+  .subgroup-toggle{
+    display:flex;align-items:center;gap:8px;background:none;border:none;cursor:pointer;
+    font-family:'Inter',sans-serif;padding:0;
+  }
+  .subgroup-toggle .subgroup-name{font-family:'Fraunces',serif;font-size:15px;font-weight:500;color:var(--ink);}
+  .subgroup-toggle .count{
+    background:var(--sage-soft);color:var(--ink-soft);font-size:10px;font-weight:700;
+    padding:2px 8px;border-radius:8px;
+  }
+  .subgroup-toggle .chevron{display:inline-block;transition:transform .15s ease;color:var(--gold);font-size:12px;}
+  .subgroup-toggle .chevron.closed{transform:rotate(-90deg);}
+  .vsub-select{
+    font-family:'Inter',sans-serif;font-size:11px;font-weight:600;
+    background:var(--sage-soft);color:var(--ink-soft);border:1px solid transparent;
+    border-radius:12px;padding:4px 10px;margin:2px 0 10px;cursor:pointer;max-width:100%;
+  }
+  .vsub-select:focus{outline:none;border-color:var(--gold);}
   .vcard{
     background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
     padding:16px;box-shadow:var(--shadow);position:relative;
@@ -970,7 +991,8 @@ let state = {
   checklist: [],
   guests: [],
   guestGroups: [],
-  hiddenCategories: []
+  hiddenCategories: [],
+  vendorSubGroups: {}
 };
 
 let isInitialLoad = true;
@@ -1071,10 +1093,13 @@ onValue(dataRef, (snapshot) => {
     if(!state.guests) state.guests = [];
     if(!state.guestGroups || !state.guestGroups.length) state.guestGroups = [...DEFAULT_GUEST_GROUPS];
     if(!state.hiddenCategories) state.hiddenCategories = [];
+    if(!state.vendorSubGroups) state.vendorSubGroups = {};
     
     // Migrasi data lama jika diperlukan
     Object.keys(state.vendors).forEach(cat=>{
+      if(!state.vendorSubGroups[cat]) state.vendorSubGroups[cat] = [];
       state.vendors[cat].forEach(v=>{
+        if(v.subGroup === undefined) v.subGroup = '';
         if(!v.packages) v.packages = [{id:uid(), name:'Paket 1', price:0, qty:1, includes:'', chosen:true, brosur:null}];
         if(!v.payments) v.payments = [];
         v.packages.forEach(p=>{
@@ -1111,6 +1136,7 @@ onValue(dataRef, (snapshot) => {
     DEFAULT_CATEGORIES.forEach(c => state.vendors[c] = []);
     state.guestGroups = [...DEFAULT_GUEST_GROUPS];
     state.hiddenCategories = [];
+    state.vendorSubGroups = {};
     updateUIFromState();
   }
   isInitialLoad = false;
@@ -1319,6 +1345,7 @@ let vendorSearchTerm = '';
 let vendorCategoryFilterVal = 'semua';
 let vendorStatusFilterVal = 'semua';
 let vendorSortVal = 'default';
+let collapsedSubgroups = new Set(); // key = "kategori||namaSubKelompok"
 
 function sortVendorList(list){
   const arr = [...list];
@@ -1387,16 +1414,50 @@ function renderVendors(){
           <button class="add-btn" data-cat="${escapeAttr(cat)}">+ Vendor</button>
         </div>
       </div>
-      <div class="vendor-grid"></div>
     `;
     wrap.appendChild(block);
-    const grid = block.querySelector('.vendor-grid');
+
     if(fullList.length === 0){
-      grid.innerHTML = '<div class="empty-cat">Belum ada vendor. Klik "+ Vendor" untuk menambahkan.</div>';
+      const empty = document.createElement('div');
+      empty.className = 'empty-cat';
+      empty.textContent = 'Belum ada vendor. Klik "+ Vendor" untuk menambahkan.';
+      block.appendChild(empty);
     } else if(list.length === 0){
-      grid.innerHTML = '<div class="vendor-empty-filtered">Tidak ada vendor yang cocok dengan pencarian/filter di kategori ini.</div>';
+      const empty = document.createElement('div');
+      empty.className = 'vendor-empty-filtered';
+      empty.textContent = 'Tidak ada vendor yang cocok dengan pencarian/filter di kategori ini.';
+      block.appendChild(empty);
     } else {
-      list.forEach(v => grid.appendChild(renderVendorCard(cat, v)));
+      if(!state.vendorSubGroups[cat]) state.vendorSubGroups[cat] = [];
+      const groupOrder = [];
+      const seen = new Set();
+      state.vendorSubGroups[cat].forEach(g=>{ if(!seen.has(g)){ groupOrder.push(g); seen.add(g); } });
+      list.forEach(v=>{ if(v.subGroup && !seen.has(v.subGroup)){ groupOrder.push(v.subGroup); seen.add(v.subGroup); } });
+
+      const buckets = {};
+      groupOrder.forEach(g=>buckets[g]=[]);
+      const ungrouped = [];
+      list.forEach(v=>{
+        if(v.subGroup && buckets[v.subGroup]) buckets[v.subGroup].push(v);
+        else ungrouped.push(v);
+      });
+
+      const usingSubgroups = groupOrder.some(g=>buckets[g].length>0);
+
+      if(!usingSubgroups){
+        // Belum ada sub-kelompok dipakai di kategori ini — tampilkan grid polos seperti biasa
+        const grid = document.createElement('div');
+        grid.className = 'vendor-grid';
+        list.forEach(v => grid.appendChild(renderVendorCard(cat, v)));
+        block.appendChild(grid);
+      } else {
+        if(ungrouped.length){
+          block.appendChild(renderSubGroupBlock(cat, '', ungrouped, true));
+        }
+        groupOrder.forEach(g=>{
+          if(buckets[g].length) block.appendChild(renderSubGroupBlock(cat, g, buckets[g], false));
+        });
+      }
     }
   });
 
@@ -1424,6 +1485,31 @@ document.getElementById('vendorSortSelect').addEventListener('change', e=>{
   renderVendors();
 });
 
+function renderSubGroupBlock(cat, groupName, vendors, isUngrouped){
+  const key = cat + '||' + groupName;
+  const collapsed = collapsedSubgroups.has(key);
+  const section = document.createElement('div');
+  section.className = 'subgroup-block';
+  section.innerHTML = `
+    <div class="subgroup-head">
+      <button class="subgroup-toggle" type="button" data-subkey="${escapeAttr(key)}">
+        <span class="chevron ${collapsed?'closed':''}">▾</span>
+        <span class="subgroup-name">${isUngrouped ? 'Belum Dikelompokkan' : escapeHtml(groupName)}</span>
+        <span class="count">${vendors.length}</span>
+      </button>
+    </div>
+    <div class="vendor-grid ${collapsed?'collapsed':''}"></div>
+  `;
+  const grid = section.querySelector('.vendor-grid');
+  vendors.forEach(v => grid.appendChild(renderVendorCard(cat, v)));
+  section.querySelector('.subgroup-toggle').addEventListener('click', ()=>{
+    if(collapsedSubgroups.has(key)) collapsedSubgroups.delete(key);
+    else collapsedSubgroups.add(key);
+    renderVendors();
+  });
+  return section;
+}
+
 function renderVendorCard(cat, v){
   const el = document.createElement('div');
   el.className = 'vcard' + (v.chosen ? ' chosen' : '');
@@ -1432,6 +1518,11 @@ function renderVendorCard(cat, v){
       <input class="vname" value="${escapeAttr(v.name)}" placeholder="Nama vendor" data-field="name">
       <button class="del-x">✕</button>
     </div>
+    <select class="vsub-select" data-field="subgroup">
+      <option value="">— Belum dikelompokkan —</option>
+      ${(state.vendorSubGroups[cat]||[]).map(g=>`<option value="${escapeAttr(g)}" ${v.subGroup===g?'selected':''}>${escapeHtml(g)}</option>`).join('')}
+      <option value="__new__">+ Buat kelompok baru...</option>
+    </select>
     <div class="vfield"><label>Kontak</label>
       <div class="contact-links">
         ${(v.contactLinks||[]).map(link => contactLinkPill(link)).join('')}
@@ -1453,6 +1544,25 @@ function renderVendorCard(cat, v){
   `;
 
   el.querySelector('[data-field="name"]').addEventListener('input', e=>{ v.name = e.target.value; scheduleSave(); });
+  const subSel = el.querySelector('[data-field="subgroup"]');
+  subSel.addEventListener('change', e=>{
+    const val = e.target.value;
+    if(val === '__new__'){
+      const name = prompt('Nama sub-kelompok baru (mis. MUA, Fotografi, Dekorasi):');
+      if(name && name.trim()){
+        const clean = name.trim();
+        if(!state.vendorSubGroups[cat]) state.vendorSubGroups[cat] = [];
+        if(!state.vendorSubGroups[cat].includes(clean)) state.vendorSubGroups[cat].push(clean);
+        v.subGroup = clean;
+      } else {
+        e.target.value = v.subGroup || '';
+        return;
+      }
+    } else {
+      v.subGroup = val;
+    }
+    scheduleSave(); renderVendors();
+  });
   el.querySelector('[data-field="notes"]').addEventListener('input', e=>{ v.notes = e.target.value; scheduleSave(); });
   el.querySelector('.del-x').addEventListener('click', ()=>{
     state.vendors[cat] = state.vendors[cat].filter(x=>x.id!==v.id);
@@ -1761,7 +1871,7 @@ document.getElementById('vendorCategories').addEventListener('click', e=>{
   if(!addBtn) return;
   const cat = addBtn.dataset.cat;
   if(!state.vendors[cat]) return;
-  state.vendors[cat].push({id:uid(), name:'', contactLinks:[], notes:'', rating:0, status:'pertimbangan', chosen:false, payments:[],
+  state.vendors[cat].push({id:uid(), name:'', contactLinks:[], notes:'', rating:0, status:'pertimbangan', chosen:false, payments:[], subGroup:'',
     packages:[{id:uid(), name:'Paket 1', price:0, qty:1, includes:'', chosen:true, brosur:null}]});
   scheduleSave(); renderVendors();
 });
