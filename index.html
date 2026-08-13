@@ -302,7 +302,14 @@
     display:flex;flex-direction:column;gap:8px;
   }
   .vcard.chosen{border:1.5px solid var(--gold);background:linear-gradient(180deg,var(--gold-soft) 0%, var(--card) 60px);}
+  .vcard.dragging{opacity:0.4;}
   .vcard-top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;}
+  .drag-handle{
+    cursor:grab;color:var(--ink-soft);font-size:15px;padding:2px 5px;
+    touch-action:none;user-select:none;flex-shrink:0;line-height:1;border-radius:5px;
+  }
+  .drag-handle:hover{background:var(--sage-soft);color:var(--ink);}
+  .drag-handle:active{cursor:grabbing;}
   .vcard input.vname{
     font-family:'Fraunces',serif;font-size:16px;border:none;background:transparent;
     width:100%;padding:0;color:var(--ink);font-weight:500;
@@ -730,6 +737,25 @@
   <section class="view" id="view-payments">
     <p class="section-title">Pembayaran Vendor</p>
     <p class="section-sub">Tracking pembayaran untuk semua vendor yang sudah ditandai "Dipilih", dikelompokkan per kategori.</p>
+    <div class="grid-cards" style="margin-bottom:22px;">
+      <div class="card">
+        <div class="label">Vendor Dipilih</div>
+        <div class="value" id="pmVendorCount">0</div>
+      </div>
+      <div class="card">
+        <div class="label">Total Harga</div>
+        <div class="value" id="pmTotalHarga">Rp 0</div>
+      </div>
+      <div class="card">
+        <div class="label">Total Terbayar</div>
+        <div class="value" style="color:var(--sage);" id="pmTotalPaid">Rp 0</div>
+      </div>
+      <div class="card">
+        <div class="label">Sisa Harus Dibayar</div>
+        <div class="value" style="color:var(--danger);" id="pmTotalOutstanding">Rp 0</div>
+        <div class="progress-track"><div class="progress-fill" id="pmProgressBar" style="width:0%"></div></div>
+      </div>
+    </div>
     <div id="paymentsList"></div>
   </section>
 
@@ -1485,6 +1511,63 @@ document.getElementById('vendorSortSelect').addEventListener('change', e=>{
   renderVendors();
 });
 
+/* ---------------- Drag to reorder vendor cards ---------------- */
+let dragState = null;
+
+document.getElementById('vendorCategories').addEventListener('pointerdown', e=>{
+  const handle = e.target.closest('.drag-handle');
+  if(!handle) return;
+  if(vendorSortVal !== 'default'){
+    alert('Ubah "Urutkan" ke Default dulu supaya urutan vendor bisa digeser manual.');
+    return;
+  }
+  const card = handle.closest('.vcard');
+  const grid = card && card.closest('.vendor-grid');
+  if(!card || !grid) return;
+  e.preventDefault();
+  dragState = { cat: card.dataset.cat, cardEl: card, grid, pointerId: e.pointerId };
+  card.classList.add('dragging');
+});
+
+document.addEventListener('pointermove', e=>{
+  if(!dragState || e.pointerId !== dragState.pointerId) return;
+  e.preventDefault();
+  const { grid, cardEl } = dragState;
+  const el = document.elementFromPoint(e.clientX, e.clientY);
+  if(!el) return;
+  const targetCard = el.closest('.vcard');
+  if(!targetCard || targetCard === cardEl || !grid.contains(targetCard)) return;
+  const cards = Array.from(grid.querySelectorAll(':scope > .vcard'));
+  const cardIdx = cards.indexOf(cardEl);
+  const targetIdx = cards.indexOf(targetCard);
+  if(targetIdx > cardIdx){
+    grid.insertBefore(cardEl, targetCard.nextSibling);
+  } else {
+    grid.insertBefore(cardEl, targetCard);
+  }
+});
+
+document.addEventListener('pointerup', e=>{
+  if(!dragState || e.pointerId !== dragState.pointerId) return;
+  const { cat, grid, cardEl } = dragState;
+  cardEl.classList.remove('dragging');
+  const newOrderIds = Array.from(grid.querySelectorAll(':scope > .vcard')).map(c=>c.dataset.vendorId);
+  reorderVendorsInCategory(cat, newOrderIds);
+  scheduleSave();
+  dragState = null;
+});
+
+function reorderVendorsInCategory(cat, subsetIdsInNewOrder){
+  const arr = state.vendors[cat];
+  if(!arr) return;
+  const slotIndexes = [];
+  arr.forEach((v,i)=>{ if(subsetIdsInNewOrder.includes(v.id)) slotIndexes.push(i); });
+  subsetIdsInNewOrder.forEach((id, i)=>{
+    const vendor = arr.find(v=>v.id===id);
+    if(vendor && slotIndexes[i] !== undefined) arr[slotIndexes[i]] = vendor;
+  });
+}
+
 function renderSubGroupBlock(cat, groupName, vendors, isUngrouped){
   const key = cat + '||' + groupName;
   const collapsed = collapsedSubgroups.has(key);
@@ -1513,8 +1596,11 @@ function renderSubGroupBlock(cat, groupName, vendors, isUngrouped){
 function renderVendorCard(cat, v){
   const el = document.createElement('div');
   el.className = 'vcard' + (v.chosen ? ' chosen' : '');
+  el.dataset.vendorId = v.id;
+  el.dataset.cat = cat;
   el.innerHTML = `
     <div class="vcard-top">
+      <span class="drag-handle" title="Geser untuk urutkan">⠿⠿</span>
       <input class="vname" value="${escapeAttr(v.name)}" placeholder="Nama vendor" data-field="name">
       <button class="del-x">✕</button>
     </div>
@@ -2193,6 +2279,16 @@ document.getElementById('addGroupBtn').addEventListener('click', ()=>{
 function renderPayments(){
   const wrap = document.getElementById('paymentsList');
   const chosen = getAllChosenVendors();
+
+  const totalHarga = chosen.reduce((s,{v})=> s+vendorPrice(v), 0);
+  const totalPaid = totalPaidAll();
+  const totalOutstanding = totalOutstandingAll();
+  document.getElementById('pmVendorCount').textContent = chosen.length;
+  document.getElementById('pmTotalHarga').textContent = formatRp(totalHarga);
+  document.getElementById('pmTotalPaid').textContent = formatRp(totalPaid);
+  document.getElementById('pmTotalOutstanding').textContent = formatRp(totalOutstanding);
+  document.getElementById('pmProgressBar').style.width = (totalHarga>0 ? Math.min(100,(totalPaid/totalHarga)*100) : 0) + '%';
+
   if(chosen.length === 0){
     wrap.innerHTML = '<p class="section-sub">Belum ada vendor yang ditandai "Dipilih". Pilih vendor dulu di tab Vendor untuk mulai mencatat pembayaran.</p>';
     return;
