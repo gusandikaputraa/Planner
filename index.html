@@ -1745,15 +1745,34 @@ function renderCategoryPie(){
 // blok sub-kelompok yang bersangkutan (dipicu dari klik slice pie chart).
 function goToVendorSubgroup(cat, subGroupLabel){
   switchView('vendor');
+
+  // Kategori yang dituju mungkin sedang disembunyikan atau sub-kelompoknya
+  // sedang di-collapse dari sesi sebelumnya — tampilkan paksa keduanya,
+  // supaya hasil klik selalu langsung terlihat, bukan halaman kosong.
+  if(state.hiddenCategories && state.hiddenCategories.includes(cat)){
+    state.hiddenCategories = state.hiddenCategories.filter(c => c !== cat);
+    scheduleSave();
+  }
+  const groupKey = (subGroupLabel === 'Belum Dikelompokkan') ? '' : subGroupLabel;
+  const subkey = cat + '||' + groupKey;
+  if(collapsedSubgroups.has(subkey)) collapsedSubgroups.delete(subkey);
+
   vendorCategoryFilterVal = cat;
   const filterSelect = document.getElementById('vendorCategoryFilter');
   if(filterSelect) filterSelect.value = cat;
+  // Reset filter status & pencarian juga, supaya vendor di sub-kelompok
+  // yang dituju tidak ikut tersaring/hilang karena filter lama.
+  vendorStatusFilterVal = 'semua';
+  const statusSelect = document.getElementById('vendorStatusFilter');
+  if(statusSelect) statusSelect.value = 'semua';
+  vendorSearchTerm = '';
+  const searchInput = document.getElementById('vendorSearch');
+  if(searchInput) searchInput.value = '';
+
   renderVendors();
   requestAnimationFrame(()=>{
-    const groupKey = (subGroupLabel === 'Belum Dikelompokkan') ? '' : subGroupLabel;
-    const subkeyAttr = cat + '||' + groupKey;
     const toggleBtn = Array.from(document.querySelectorAll('.subgroup-toggle'))
-      .find(b => b.dataset.subkey === subkeyAttr);
+      .find(b => b.dataset.subkey === subkey);
     const targetBlock = toggleBtn ? toggleBtn.closest('.subgroup-block') : null;
     if(targetBlock){
       targetBlock.scrollIntoView({behavior:'smooth', block:'start'});
